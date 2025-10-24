@@ -1,0 +1,22 @@
+<component name="libraryTable">
+  <library name="Proyecto_2025">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/Proyecto_2025.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../flatlaf-dashboard-pro-main/library/flatlaf-extras-3.4.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../flatlaf-dashboard-pro-main/library/flatlaf-fonts-roboto-2.137.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../flatlaf-dashboard-pro-main/library/jsvg-1.4.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../flatlaf-dashboard-pro-main/library/miglayout-core.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../flatlaf-dashboard-pro-main/library/miglayout-swing.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../flatlaf-dashboard-pro-main/library/swing-chart-1.1.0-beta.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../flatlaf-dashboard-pro-main/library/swing-glasspane-popup-1.5.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../flatlaf-dashboard-pro-main/library/swing-toast-notifications-1.0.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../flatlaf-dashboard-pro-main/library/datechooser-swing-1.4.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../flatlaf-dashboard-001-main/library/swing-blur-background-1.0.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../flatlaf-dashboard-001-main/library/swing-chart-1.1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../flatlaf-dashboard-001-main/library/swing-glasspane-popup-1.5.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../lib/flatlaf-3.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
