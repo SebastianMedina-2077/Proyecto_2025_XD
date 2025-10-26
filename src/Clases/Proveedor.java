@@ -6,7 +6,7 @@ public class Proveedor extends Persona {
     private String banco_proveedor;
     private String cuenta_bancaria;
 
-    public Proveedor(String razonsocial, String ruc, String banco_proveedor, String cuenta_bancaria, String dni, String nombre, String apellido, java.sql.Date fechanacimiento, String genero, int contacto, Catalogos.Estado estado, Catalogos.Tipo tipo) {
+    public Proveedor(String razonsocial, String ruc, String banco_proveedor, String cuenta_bancaria, String dni, String nombre, String apellido, java.sql.Date fechanacimiento, String genero, Contacto contacto, Catalogos.Estado estado, Catalogos.Tipo tipo) {
         super(dni, nombre, apellido, fechanacimiento, genero, contacto, estado, tipo);
         this.razonsocial = razonsocial;
         this.ruc = ruc;
