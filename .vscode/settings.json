@@ -1,0 +1,32 @@
+{
+    "java.project.sourcePaths": [
+        "library",
+        "src"
+    ],
+    "java.project.referencedLibraries": [
+        "d:\\universidad\\Proyecto_2025\\library\\flatlaf-extras-3.4.1.jar",
+        "d:\\universidad\\Proyecto_2025\\library\\swing-chart-1.1.0-beta.jar",
+        "d:\\universidad\\Proyecto_2025\\library\\miglayout-4.0.jar",
+        "d:\\universidad\\Proyecto_2025\\library\\jsvg-1.4.0.jar",
+        "d:\\universidad\\Proyecto_2025\\library\\swing-toast-notifications-1.0.2.jar",
+        "d:\\universidad\\Proyecto_2025\\library\\miglayout-swing.jar",
+        "d:\\universidad\\Proyecto_2025\\library\\TimingFramework-0.55.jar",
+        "d:\\universidad\\Proyecto_2025\\library\\flatlaf-3.4.1.jar",
+        "d:\\universidad\\Proyecto_2025\\library\\swing-glasspane-popup-1.5.1.jar",
+        "d:\\universidad\\Proyecto_2025\\library\\flatlaf-fonts-roboto-2.137.jar",
+        "d:\\universidad\\Proyecto_2025\\library\\datechooser-swing-1.4.1.jar",
+        "d:\\universidad\\Proyecto_2025\\library\\miglayout-core.jar",
+        "library/datechooser-swing-1.4.1.jar",
+        "library/flatlaf-3.4.1.jar",
+        "library/flatlaf-extras-3.4.1.jar",
+        "library/flatlaf-fonts-roboto-2.137.jar",
+        "library/jsvg-1.4.0.jar",
+        "library/miglayout-4.0.jar",
+        "library/miglayout-core.jar",
+        "library/miglayout-swing.jar",
+        "library/swing-chart-1.1.0-beta.jar",
+        "library/swing-glasspane-popup-1.5.1.jar",
+        "library/swing-toast-notifications-1.0.2.jar",
+        "library/TimingFramework-0.55.jar"
+    ]
+}
