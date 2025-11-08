@@ -17,6 +17,7 @@
       <root url="jar://$PROJECT_DIR$/../../lib/flatlaf-3.6.jar!/" />
       <root url="jar://$PROJECT_DIR$/library/modal-dialog-2.5.2.jar!/" />
       <root url="jar://$PROJECT_DIR$/dist/lib/flatlaf-3.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dist/lib/mssql-jdbc-12.10.0.jre11.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

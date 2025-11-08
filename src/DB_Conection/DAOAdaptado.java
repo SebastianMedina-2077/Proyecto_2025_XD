@@ -166,12 +166,30 @@ public abstract class DAOAdaptado<T, K> extends ValidadorAdaptado implements Gen
     }
 
     // Métodos reutilizables para operaciones comunes
+    // Para procedures SIN parámetros
     protected List<T> ejecutarProcedureGenerico(String procedure, PreparedStatementCallback<T> callback) {
+        return ejecutarProcedureGenericoConParametros(procedure, callback, 0);
+    }
+
+    // Para procedures CON parámetros - versión mejorada
+    protected List<T> ejecutarProcedureGenericoConParametros(String procedure, PreparedStatementCallback<T> callback, int numParametros) {
         List<T> lista = new ArrayList<>();
         try (Connection con = obtenerConexion()) {
             if (con == null) return lista;
 
-            try (CallableStatement cs = con.prepareCall("EXEC " + procedure)) {
+            // Construir la llamada con el número correcto de parámetros
+            StringBuilder llamada = new StringBuilder("{CALL ").append(procedure);
+            if (numParametros > 0) {
+                llamada.append("(");
+                for (int i = 0; i < numParametros; i++) {
+                    llamada.append("?");
+                    if (i < numParametros - 1) llamada.append(", ");
+                }
+                llamada.append(")");
+            }
+            llamada.append("}");
+
+            try (CallableStatement cs = con.prepareCall(llamada.toString())) {
                 callback.setParameters(cs);
                 try (ResultSet rs = cs.executeQuery()) {
                     while (rs.next()) {

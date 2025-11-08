@@ -8,6 +8,12 @@ import raven.menu.FormManager;
 import raven.modal.ModalDialog;
 import raven.model.ModelUser;
 
+import Clases.ResultadoLogin;
+import Clases.Usuario;
+import Servicios.UsuarioServicio;
+import Singleton.SesionManager;
+import raven.toast.Notifications;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,7 +22,10 @@ public class Login extends JPanel {
 
     public static final String ID = "login_id";
 
+    private final UsuarioServicio usuarioServicio;
+
     public Login() {
+        this.usuarioServicio = new UsuarioServicio();
         setLayout(new MigLayout("insets n 20 n 20,fillx,wrap,width 380", "[fill]"));
         JTextArea text = new JTextArea("Become a member you'll enjoy exclusive deals,\noffers, invites and rewards.");
         text.setEditable(false);
@@ -48,7 +57,8 @@ public class Login extends JPanel {
 
         add(txtPassword);
 
-        add(new JCheckBox("Remember me"), "split 2,gapy 10 10");
+        JCheckBox chkRememberMe = new JCheckBox("Recordar sesión");
+        add(chkRememberMe, "split 2,gapy 10 10");
         ButtonLink cmdForgotPassword = new ButtonLink("Forgot password ?");
         add(cmdForgotPassword, "gapx push n");
 
@@ -80,12 +90,7 @@ public class Login extends JPanel {
         });
 
         cmdLogin.addActionListener((e) -> {
-            String userName = txtEmail.getText().trim();
-            String password = new String(txtPassword.getPassword()).trim();
-            // this is just for example to check admin user :)
-            boolean isAdmin = userName.equals("admin");
-            FormManager.login(new ModelUser(userName, isAdmin));
-            ModalDialog.popModel(ID);
+            realizarLogin(txtEmail, txtPassword, chkRememberMe);
         });
     }
 
@@ -117,5 +122,77 @@ public class Login extends JPanel {
         });
         toolBar.add(button);
         txt.putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_COMPONENT, toolBar);
+    }
+
+    private void realizarLogin(JTextField txtUsuario, JPasswordField txtPassword, JCheckBox chkRememberMe) {
+        String nombreUsuario = txtUsuario.getText().trim();
+        String contrasena = new String(txtPassword.getPassword()).trim();
+
+        // Validaciones básicas
+        if (nombreUsuario.isEmpty()) {
+            Notifications.getInstance().show(Notifications.Type.WARNING,
+                    "Por favor ingrese su nombre de usuario");
+            txtUsuario.requestFocus();
+            return;
+        }
+
+        if (contrasena.isEmpty()) {
+            Notifications.getInstance().show(Notifications.Type.WARNING,
+                    "Por favor ingrese su contraseña");
+            txtPassword.requestFocus();
+            return;
+        }
+
+        // Mostrar loading (opcional)
+        setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
+
+        // Realizar login
+        try {
+            ResultadoLogin resultado = usuarioServicio.iniciarSesion(nombreUsuario, contrasena);
+
+            if (resultado.isExitoso()) {
+                Usuario usuario = resultado.getUsuario();
+
+                // Crear ModelUser para FormManager
+                boolean isAdmin = resultado.esAdministrador();
+                ModelUser modelUser = new ModelUser(
+                        usuario.getNombreCompleto(),
+                        isAdmin
+                );
+
+                // Notificar éxito
+                Notifications.getInstance().show(
+                        Notifications.Type.SUCCESS,
+                        "Bienvenido " + usuario.getNombreCompleto()
+                );
+
+                // Registrar en FormManager
+                FormManager.login(modelUser);
+
+                // Cerrar modal de login
+                ModalDialog.popModel(ID);
+
+                // Limpiar campos
+                txtUsuario.setText("");
+                txtPassword.setText("");
+
+            } else {
+                // Login fallido
+                Notifications.getInstance().show(
+                        Notifications.Type.ERROR,
+                        resultado.getMensaje()
+                );
+                txtPassword.setText("");
+                txtPassword.requestFocus();
+            }
+        } catch (Exception ex) {
+            Notifications.getInstance().show(
+                    Notifications.Type.ERROR,
+                    "Error al iniciar sesión: " + ex.getMessage()
+            );
+            ex.printStackTrace();
+        } finally {
+            setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        }
     }
 }

@@ -57,7 +57,7 @@ public class UsuarioDAO extends DAOAdaptado<Usuario, Integer> {
 
     @Override
     protected List<Usuario> ejecutarProcedureListarPorId(Integer id, String procedure) {
-        return ejecutarProcedureGenerico(procedure, new PreparedStatementCallback<Usuario>() {
+        return ejecutarProcedureGenericoConParametros(procedure, new PreparedStatementCallback<Usuario>() {
             @Override
             public void setParameters(CallableStatement cs) throws SQLException {
                 cs.setInt(1, id);
@@ -67,7 +67,7 @@ public class UsuarioDAO extends DAOAdaptado<Usuario, Integer> {
             public Usuario parsear(ResultSet rs) throws SQLException {
                 return parsearUsuario(rs);
             }
-        });
+        }, 1); // <- 1 parámetro
     }
 
     @Override
@@ -373,7 +373,7 @@ public class UsuarioDAO extends DAOAdaptado<Usuario, Integer> {
 
     @Override
     protected List<Usuario> ejecutarProcedureBuscarPorCriterio(String criterio, Object valor, String procedure) {
-        return ejecutarProcedureGenerico(procedure, new PreparedStatementCallback<Usuario>() {
+        return ejecutarProcedureGenericoConParametros(procedure, new PreparedStatementCallback<Usuario>() {
             @Override
             public void setParameters(CallableStatement cs) throws SQLException {
                 cs.setString(1, criterio);
@@ -384,6 +384,6 @@ public class UsuarioDAO extends DAOAdaptado<Usuario, Integer> {
             public Usuario parsear(ResultSet rs) throws SQLException {
                 return parsearUsuario(rs);
             }
-        });
+        }, 2); // <- 2 parámetros
     }
 }
