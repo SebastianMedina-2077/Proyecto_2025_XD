@@ -1,19 +1,46 @@
 package Clases_Tienda;
 
-public class Categoria {
-    private String nombreCategoria;
-    private boolean estadoCategoria;
+import DB_Conection.EntidadBase;
 
-    public Categoria(String nombreCategoria, boolean estadoCategoria) {
-        this.nombreCategoria = nombreCategoria;
-        this.estadoCategoria = estadoCategoria;
+public class Categoria extends EntidadBase {
+    private String nombreCategoria;
+
+    public Categoria() {
+        super();
     }
 
-    public String getNombreCategoria() {
+    public Categoria(String nombreCategoria) {
+        super();
+        this.nombreCategoria = nombreCategoria;
+    }
+
+    public Categoria(Integer id, String nombreCategoria) {
+        super(id);
+        this.nombreCategoria = nombreCategoria;
+    }
+
+    @Override
+    public String getNombre() {
         return nombreCategoria;
     }
 
-    public boolean isEstadoCategoria() {
-        return estadoCategoria;
+    @Override
+    public boolean isActivo() {
+        return true;
+    }
+
+    // Métodos de negocio
+    public boolean esCategoriaAlimentaria() {
+        return nombreCategoria != null &&
+                (nombreCategoria.toLowerCase().contains("alimento") ||
+                        nombreCategoria.toLowerCase().contains("bebida") ||
+                        nombreCategoria.toLowerCase().contains("comida"));
+    }
+
+    // Getters y Setters
+    public String getNombreCategoria() { return nombreCategoria; }
+    public void setNombreCategoria(String nombreCategoria) {
+        this.nombreCategoria = nombreCategoria;
+        actualizarFechaModificacion();
     }
 }

@@ -1,19 +1,38 @@
 package Clases_Tienda;
 
-public class Marca {
-    private String nombreMarca;
-    private boolean estadoMarca;
+import DB_Conection.EntidadBase;
 
-    public Marca(String nombreMarca, boolean estadoMarca) {
-        this.nombreMarca = nombreMarca;
-        this.estadoMarca = estadoMarca;
+public class Marca extends EntidadBase {
+    private String nombreMarca;
+
+    public Marca() {
+        super();
     }
 
-    public String getNombreMarca() {
+    public Marca(String nombreMarca) {
+        super();
+        this.nombreMarca = nombreMarca;
+    }
+
+    public Marca(Integer id, String nombreMarca) {
+        super(id);
+        this.nombreMarca = nombreMarca;
+    }
+
+    @Override
+    public String getNombre() {
         return nombreMarca;
     }
 
-    public boolean isEstadoMarca() {
-        return estadoMarca;
+    @Override
+    public boolean isActivo() {
+        return true;
+    }
+
+    // Getters y Setters
+    public String getNombreMarca() { return nombreMarca; }
+    public void setNombreMarca(String nombreMarca) {
+        this.nombreMarca = nombreMarca;
+        actualizarFechaModificacion();
     }
 }

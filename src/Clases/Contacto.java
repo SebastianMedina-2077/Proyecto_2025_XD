@@ -1,34 +1,57 @@
 package Clases;
 
-public class Contacto extends Direccion {
-    private int idContacto;
-    private String numeroTelefonico;
+public class Contacto {
+    private Integer id;
+    private String numeroTel;
     private String operador;
-    private String correoElectronico;
+    private String correo;
     private String whatsapp;
+    private Direccion direccion;
 
-    public Contacto(String numeroTelefonico, String operador, String correoElectronico, String whatsapp, String direccion, String departamento, String provincia, String distrito, String referencia) {
-        super(direccion, departamento, provincia, distrito, referencia);
-        this.numeroTelefonico = numeroTelefonico;
+    // Constructor por defecto
+    public Contacto() {}
+
+    // Constructor básico
+    public Contacto(String numeroTel, String correo) {
+        this.numeroTel = numeroTel;
+        this.correo = correo;
+    }
+
+    // Constructor completo
+    public Contacto(Integer id, String numeroTel, String operador, String correo,
+                    String whatsapp, Direccion direccion) {
+        this.id = id;
+        this.numeroTel = numeroTel;
         this.operador = operador;
-        this.correoElectronico = correoElectronico;
+        this.correo = correo;
         this.whatsapp = whatsapp;
+        this.direccion = direccion;
     }
 
-
-    public String getNumeroTelefonico() {
-        return numeroTelefonico;
+    // Constructor para WhatsApp
+    public Contacto(String numeroTel, String whatsapp, String correo) {
+        this.numeroTel = numeroTel;
+        this.whatsapp = whatsapp;
+        this.correo = correo;
     }
 
-    public String getOperador() {
-        return operador;
-    }
+    // Getters y Setters
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
-    public String getCorreoElectronico() {
-        return correoElectronico;
-    }
+    public String getNumeroTel() { return numeroTel; }
+    public void setNumeroTel(String numeroTel) { this.numeroTel = numeroTel; }
 
-    public String getWhatsapp() {
-        return whatsapp;
-    }
+    public String getOperador() { return operador; }
+    public void setOperador(String operador) { this.operador = operador; }
+
+    public String getCorreo() { return correo; }
+    public void setCorreo(String correo) { this.correo = correo; }
+
+    public String getWhatsapp() { return whatsapp; }
+    public void setWhatsapp(String whatsapp) { this.whatsapp = whatsapp; }
+
+    public Direccion getDireccion() { return direccion; }
+    public void setDireccion(Direccion direccion) { this.direccion = direccion; }
+
 }
