@@ -69,8 +69,7 @@ public class Login extends JPanel {
             String userName = txtUsername.getText().trim();
             String password = new String(txtPassword.getPassword()).trim();
             // this is just for example to check admin user :)
-            boolean isAdmin = userName.equals("admin");
-            FormManager.login(new ModelUser(userName, isAdmin));
+
         });
     }
 

@@ -9,60 +9,66 @@ import raven.toast.Notifications;
 
 
 public abstract class DAO<T> extends Validador {
-    protected Connection getconection() {
-        String url = "jdbc:sqlserver://localhost:1433;database=pos_db;encrypt=false";
-        String username = "sa";
-        String password = "12345";
-        try {
-            return DriverManager.getConnection(url, username, password);
-        } catch (SQLException e) {
-            manejarError("Error al conectar a la base de datos", e);
-        }
-        return null;
+    protected Connection getConnection() {
+        return DatabaseConnection.getInstance().getConnection();
     }
 
     public List<T> listarTodo(String procedure) {
         List<T> lista = new ArrayList<>();
-        try (Connection con = getconection(); CallableStatement cs = con.prepareCall("EXEC " + procedure); ResultSet rs = cs.executeQuery()) {
+        try (Connection con = getConnection();
+             CallableStatement cs = con.prepareCall("{CALL " + procedure + "}");
+             ResultSet rs = cs.executeQuery()) {
             while (rs.next()) {
                 T objeto = parsear(rs);
-                if (objeto != null) { // Asegurarse de no añadir nulls
+                if (objeto != null) {
                     lista.add(objeto);
                 }
             }
         } catch (Exception e) {
-            manejarError("Error al Listar Todo", e);
+            manejarError("Error al listar todo", e);
+        }
+        return lista;
+    }
+
+    public List<T> listarPorId(long id, String procedure) {
+        List<T> lista = new ArrayList<>();
+        try (Connection con = getConnection();
+             CallableStatement cs = con.prepareCall("{CALL " + procedure + " ?}")) {
+            cs.setLong(1, id);
+            ResultSet rs = cs.executeQuery();
+            while (rs.next()) {
+                T objeto = parsear(rs);
+                if (objeto != null) {
+                    lista.add(objeto);
+                }
+            }
+            rs.close();
+        } catch (Exception e) {
+            manejarError("Error al listar por ID", e);
         }
         return lista;
     }
 
     protected void manejarError(String mensaje, Exception e) {
-        System.err.println(mensaje + " : " + e.getMessage());
-        if (e != null) e.printStackTrace(); // Para debugging
+        System.err.println(mensaje + ": " + e.getMessage());
+        if (e != null) e.printStackTrace();
+        mostrarMensajeError(mensaje);
     }
 
-    protected void mensaje(String mensaje) {
-        JOptionPane.showMessageDialog(null, mensaje, "Informacion", JOptionPane.INFORMATION_MESSAGE);
-    }
-    public  void mensajeDeError(String mensaje){
-        Notifications.getInstance().show(Notifications.Type.ERROR, mensaje);
-    }
     public abstract T parsear(ResultSet rs) throws SQLException;
 
-    public List<T> listarPorId(long id, String procedure) {
-        List<T> lista = new ArrayList<>();
-        try (Connection con = getconection(); CallableStatement cs = con.prepareCall("EXEC " + procedure + " ?")) {
-            cs.setLong(1, id);
-            ResultSet rs = cs.executeQuery();
-            while (rs.next()) {
-                T objeto = parsear(rs);
-                if (objeto != null) { // Asegurarse de no añadir nulls
-                    lista.add(objeto);
-                }
+    // Métodos auxiliares para ejecutar procedimientos
+    protected boolean ejecutarProcedimiento(String procedure, Object... parametros) {
+        try (Connection con = getConnection();
+             CallableStatement cs = con.prepareCall("{CALL " + procedure + "}")) {
+            for (int i = 0; i < parametros.length; i++) {
+                cs.setObject(i + 1, parametros[i]);
             }
+            cs.execute();
+            return true;
         } catch (Exception e) {
-            manejarError("Error al Listar Por Id", e);
+            manejarError("Error al ejecutar procedimiento", e);
+            return false;
         }
-        return lista;
     }
 }

@@ -18,6 +18,8 @@ import raven.popup.GlassPanePopup;
 import raven.login_register.Login;
 import raven.login_register.CustomModalBorder;
 import raven.modal.option.Option;
+import raven.toast.Notifications;
+
 /**
  *
  * @author
@@ -44,6 +46,7 @@ public class Application extends JFrame {
         // applyComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         GlassPanePopup.install(this);
         FormManager.install(this, UNDECORATED);
+        Notifications.getInstance().setJFrame(this);
         FormManager.showForm(new DashboardForm());
         FormManager.logout();
         // applyComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);

@@ -1,1758 +1,1701 @@
-create table ALMACEN_SM
+create table Almacen
 (
-    COD_ALMACEN       varchar(10) not null
-        constraint PK_ALMACEN_SM
-            primary key,
-    NOMBRE_ALMACEN    varchar(50) not null,
-    DIRECCION_ALMACEN varchar(100),
-    ACTIVO            bit default 1
+    idAlmacen     int          not null
+        primary key
+        check ([idAlmacen] = 252 OR [idAlmacen] = 251),
+    nombreAlmacen varchar(100) not null,
+    direccion     varchar(200),
+    responsable   varchar(100),
+    telefono      varchar(20),
+    estado        varchar(15) default 'Activo'
+        check ([estado] = 'Inactivo' OR [estado] = 'Activo')
 )
 go
 
-create table CATEGORIA_SM
+create table Categoria
 (
-    ID_CATEGORIA int identity
-        constraint PK_CATEGORIA_SM
-            primary key,
-    NOMBRE_CAT   varchar(50) not null,
-    ACTIVO       bit default 1
-)
-go
-
-create table DIRECCION_SM
-(
-    ID_DIRECCION       int identity
-        constraint PK_DIRECCION_SM
-            primary key,
-    DIRECCION_COMPLETA varchar(200) not null,
-    DEPARTAMENTO_DIR   varchar(30),
-    PROVINCIA_DIR      varchar(30),
-    DISTRITO_DIR       varchar(40),
-    REFERENCIA         varchar(100)
-)
-go
-
-create table CONTACTO_SM
-(
-    ID_CONTACTO  int identity
-        constraint PK_CONTACTO_SM
-            primary key,
-    NUMERO_TEL   varchar(15),
-    OPERADOR     varchar(20),
-    CORREO       varchar(50),
-    ID_DIRECCION int
-        constraint FK_CONTACTO_DIRECCION
-            references DIRECCION_SM,
-    WHATSAPP     varchar(15)
-)
-go
-
-create table ESTADO_SM
-(
-    ID_ESTADO    int identity
-        constraint PK_ESTADO_SM
-            primary key,
-    DESCRIP_ESTA varchar(20) not null,
-    ACTIVO       bit default 1
-)
-go
-
-create table MARCA_SM
-(
-    ID_MARCA   int identity
-        constraint PK_MARCA_SM
-            primary key,
-    NOMBRE_MAR varchar(50) not null,
-    ACTIVO     bit default 1
-)
-go
-
-create table PERSONA_SM
-(
-    DNI_SM           varchar(12) not null
-        constraint PK_PERSONA_SM
-            primary key,
-    NOMBRE_SM        varchar(60) not null,
-    APELLIDO_SM      varchar(60) not null,
-    FECHA_NACIMIENTO date,
-    GENERO           char,
-    ID_CONTACTO      int
-        constraint FK_PERSONA_CONTACTO
-            references CONTACTO_SM,
-    FECHA_REGISTRO   datetime default getdate()
-)
-go
-
-create table TIPO_SM
-(
-    ID_TIPO        int identity
-        constraint PK_TIPO_SM
-            primary key,
-    NOMBRE_TIP     varchar(20) not null,
-    CATEGORIA_TIPO varchar(20) not null,
-    ACTIVO         bit default 1
-)
-go
-
-create table CLIENTE_SM
-(
-    ID_CLIENTE         varchar(20) not null
-        constraint PK_CLIENTE_SM
-            primary key,
-    DNI_SM             varchar(12) not null
-        constraint FK_CLIENTE_PERSONA
-            references PERSONA_SM,
-    CODIGO_CLI_SM      varchar(20),
-    TIPO_CLIENTE_SM    varchar(20),
-    FECHA_REGISTRO_SM  datetime      default getdate(),
-    ID_TIPO            int         not null
-        constraint FK_CLIENTE_TIPO
-            references TIPO_SM,
-    ID_ESTADO          int         not null
-        constraint FK_CLIENTE_ESTADO
-            references ESTADO_SM,
-    DESCUENTO_ESPECIAL decimal(5, 2) default 0
-)
-go
-
-create table PROVEEDOR_SM
-(
-    COD_PROV       int identity
-        constraint PK_PROVEEDOR_SM
-            primary key,
-    RAZON_SOCIAL   varchar(100) not null,
-    RUC_PROV       varchar(11)  not null,
-    DNI_CONTACTO   varchar(12)
-        constraint FK_PROVEEDOR_CONTACTO
-            references PERSONA_SM,
-    BANCO_PROV     varchar(50),
-    NUMERO_CUENTA  varchar(50),
-    ID_ESTADO      int          not null
-        constraint FK_PROVEEDOR_ESTADO
-            references ESTADO_SM,
-    ID_TIPO        int          not null
-        constraint FK_PROVEEDOR_TIPO
-            references TIPO_SM,
-    FECHA_REGISTRO datetime default getdate()
-)
-go
-
-create table PRODUCTO_SM
-(
-    COD_PRODUCTO      varchar(20)    not null
-        constraint PK_PRODUCTO_SM
-            primary key,
-    NOMBRE_PRO        varchar(100)   not null,
-    DESCRIPCION       varchar(500),
-    PRECIO_COMPRA     decimal(10, 2) not null,
-    PRECIO_VENTA      decimal(10, 2) not null,
-    STOCK_MINIMO      int      default 5,
-    LOTE_PRO          varchar(20),
-    FECHA_VENCIMIENTO date,
-    IMAGEN_PATH       varchar(200),
-    ID_CATEGORIA      int            not null
-        constraint FK_PRODUCTO_CATEGORIA
-            references CATEGORIA_SM,
-    ID_MARCA          int            not null
-        constraint FK_PRODUCTO_MARCA
-            references MARCA_SM,
-    ID_ESTADO         int            not null
-        constraint FK_PRODUCTO_ESTADO
-            references ESTADO_SM,
-    COD_PROV          int            not null
-        constraint FK_PRODUCTO_PROVEEDOR
-            references PROVEEDOR_SM,
-    FECHA_REGISTRO    datetime default getdate()
-)
-go
-
-create index IX_PRODUCTO_CATEGORIA
-    on PRODUCTO_SM (ID_CATEGORIA)
-go
-
-create index IX_PRODUCTO_MARCA
-    on PRODUCTO_SM (ID_MARCA)
-go
-
-create table USUARIOS_SM
-(
-    ID_USUARIO        int identity
-        constraint PK_USUARIOS_SM
-            primary key,
-    NOMBRE_US         varchar(30)  not null
+    idCategoria     int identity
+        primary key,
+    nombreCategoria varchar(100) not null
         unique,
-    CONTRASEÑA_US     varchar(100) not null,
-    DNI_SM            varchar(12)  not null
-        constraint FK_USUARIO_PERSONA
-            references PERSONA_SM,
-    ID_ESTADO         int          not null
-        constraint FK_USUARIO_ESTADO
-            references ESTADO_SM,
-    ID_TIPO           int          not null
-        constraint FK_USUARIO_TIPO
-            references TIPO_SM,
-    FECHA_REGISTRO_US datetime default getdate(),
-    ULTIMO_INGRESO    datetime,
-    INTENTOS_FALLIDOS int      default 0
+    descripcion     varchar(255),
+    estado          varchar(15) default 'Activo'
+        check ([estado] = 'Inactivo' OR [estado] = 'Activo')
 )
 go
 
-create table INVENTARIO_SM
+create table Cliente
 (
-    ID_INVENTARIO      int identity
-        constraint PK_INVENTARIO_SM
-            primary key,
-    COD_PRODUCTO       varchar(20)        not null
-        constraint FK_INVENTARIO_PRODUCTO
-            references PRODUCTO_SM,
-    COD_ALMACEN        varchar(10)        not null
-        constraint FK_INVENTARIO_ALMACEN
-            references ALMACEN_SM,
-    STOCK_ACTUAL       int      default 0 not null,
-    STOCK_RESERVADO    int      default 0,
-    FECHA_MODIFICACION datetime default getdate(),
-    USUARIO_MODIFICA   int
-        constraint FK_INVENTARIO_USUARIO
-            references USUARIOS_SM,
-    constraint UK_INVENTARIO
-        unique (COD_PRODUCTO, COD_ALMACEN)
+    idCliente              int identity
+        primary key,
+    tipoCliente            varchar(20)  not null
+        check ([tipoCliente] = 'Eventual' OR [tipoCliente] = 'Minorista' OR [tipoCliente] = 'Mayorista'),
+    razonSocial            varchar(150) not null,
+    documento              varchar(11)  not null
+        unique,
+    tipoDocumento          varchar(10)
+        check ([tipoDocumento] = 'DNI' OR [tipoDocumento] = 'RUC'),
+    telefono               varchar(20),
+    email                  varchar(80),
+    direccion              varchar(250),
+    descuentoPersonalizado decimal(5, 2) default 0
+        check ([descuentoPersonalizado] >= 0 AND [descuentoPersonalizado] <= 100),
+    fechaRegistro          date          default CONVERT([date], getdate()),
+    estado                 varchar(15)   default 'Activo'
+        check ([estado] = 'Inactivo' OR [estado] = 'Activo')
 )
 go
 
-create index IX_INVENTARIO_PRODUCTO
-    on INVENTARIO_SM (COD_PRODUCTO)
+create index IX_Cliente_Documento
+    on Cliente (documento)
 go
 
-create table MOVIMIENTO_INVENTARIO
+create table LogAcceso
 (
-    ID_MOVIMIENTO      int identity
-        constraint PK_MOVIMIENTO_INVENTARIO
-            primary key,
-    COD_PRODUCTO       varchar(20) not null
-        constraint FK_MOVIMIENTO_PRODUCTO
-            references PRODUCTO_SM,
-    COD_ALMACEN        varchar(10) not null
-        constraint FK_MOVIMIENTO_ALMACEN
-            references ALMACEN_SM,
-    TIPO_MOVIMIENTO    varchar(20) not null,
-    CANTIDAD           int         not null,
-    STOCK_ANTERIOR     int         not null,
-    STOCK_NUEVO        int         not null,
-    FECHA_MOVIMIENTO   datetime default getdate(),
-    USUARIO_MOVIMIENTO int         not null
-        constraint FK_MOVIMIENTO_USUARIO
-            references USUARIOS_SM,
-    REFERENCIA         varchar(50),
-    OBSERVACIONES      varchar(200)
+    idLog         int identity
+        primary key,
+    nombreUsuario varchar(50) not null,
+    exitoso       bit         not null,
+    ipAcceso      varchar(50),
+    fechaIntento  datetime default getdate(),
+    motivo        varchar(100)
 )
 go
 
-create index IX_MOVIMIENTO_FECHA
-    on MOVIMIENTO_INVENTARIO (FECHA_MOVIMIENTO)
-go
-
-create table VENTA_CABECERA_SM
+create table Marca
 (
-    COD_FACTURA     varchar(20)    not null
-        constraint PK_VENTA_CABECERA_SM
-            primary key,
-    ID_CLIENTE      varchar(20)    not null
-        constraint FK_VENTA_CLIENTE
-            references CLIENTE_SM,
-    ID_USUARIO      int            not null
-        constraint FK_VENTA_USUARIO
-            references USUARIOS_SM,
-    FECHA_VENTA     datetime       default getdate(),
-    SUBTOTAL        decimal(10, 2) not null,
-    IGV_TOTAL       decimal(10, 2) not null,
-    DESCUENTO_TOTAL decimal(10, 2) default 0,
-    TOTAL_VENTA     decimal(10, 2) not null,
-    METODO_PAGO     varchar(20)    not null,
-    ESTADO_VENTA    varchar(20)    default 'COMPLETADA',
-    QR_VENTA        varchar(200),
-    OBSERVACIONES   varchar(200)
+    idMarca     int identity
+        primary key,
+    nombreMarca varchar(100) not null
+        unique,
+    estado      varchar(15) default 'Activo'
+        check ([estado] = 'Inactivo' OR [estado] = 'Activo')
 )
 go
 
-create index IX_VENTA_FECHA
-    on VENTA_CABECERA_SM (FECHA_VENTA)
-go
-
-create index IX_VENTA_CLIENTE
-    on VENTA_CABECERA_SM (ID_CLIENTE)
-go
-
-create table VENTA_DETALLE_SM
+create table MedioPago
 (
-    ID_DETALLE         int identity
-        constraint PK_VENTA_DETALLE_SM
-            primary key,
-    COD_FACTURA        varchar(20)    not null
-        constraint FK_DETALLE_CABECERA
-            references VENTA_CABECERA_SM,
-    COD_PRODUCTO       varchar(20)    not null
-        constraint FK_DETALLE_PRODUCTO
-            references PRODUCTO_SM,
-    CANTIDAD           int            not null,
-    PRECIO_UNITARIO    decimal(10, 2) not null,
-    DESCUENTO_UNITARIO decimal(10, 2) default 0,
-    SUBTOTAL_DETALLE   decimal(10, 2) not null,
-    COD_ALMACEN        varchar(10)    not null
-        constraint FK_DETALLE_ALMACEN
-            references ALMACEN_SM
+    idMedioPago int identity
+        primary key,
+    nombreMedio varchar(50) not null
+        unique,
+    tipo        varchar(20)
+        check ([tipo] = 'Transferencia' OR [tipo] = 'Efectivo' OR [tipo] = 'Digital'),
+    activo      bit default 1
 )
 go
 
-CREATE PROCEDURE dbo.ActualizarInventario
-    @p_id_producto      INT,
-    @p_id_almacen       INT,
-    @p_cantidad         DECIMAL(10,2),
-    @p_tipo_movimiento  VARCHAR(10),
-    @p_costo_unitario   DECIMAL(10,2),
-    @p_precio_venta     DECIMAL(10,2)
+create table Producto
+(
+    idProducto              int identity
+        primary key,
+    codigoProducto          varchar(50)    not null
+        unique,
+    nombreProducto          varchar(150)   not null,
+    descripcion             varchar(500),
+    idCategoria             int            not null
+        references Categoria,
+    idMarca                 int            not null
+        references Marca,
+    edadRecomendada         varchar(20),
+    precioUnidad            decimal(10, 2) not null
+        check ([precioUnidad] > 0),
+    precioDocena            decimal(10, 2) not null
+        check ([precioDocena] > 0),
+    precioMayorista         decimal(10, 2) not null
+        check ([precioMayorista] > 0),
+    cantidadMinimaMayorista int         default 50,
+    stockMinimo             int         default 10,
+    pesoKg                  decimal(8, 3),
+    fechaCreacion           datetime    default getdate(),
+    estado                  varchar(15) default 'Activo'
+        check ([estado] = 'Inactivo' OR [estado] = 'Activo')
+)
+go
+
+create table Inventario
+(
+    idInventario        int identity
+        primary key,
+    idProducto          int not null
+        references Producto,
+    idAlmacen           int not null
+        references Almacen,
+    stockActual         int      default 0
+        check ([stockActual] >= 0),
+    ultimaActualizacion datetime default getdate(),
+    unique (idProducto, idAlmacen)
+)
+go
+
+create index IX_Inventario_Producto
+    on Inventario (idProducto)
+go
+
+create index IX_Producto_Codigo
+    on Producto (codigoProducto)
+go
+
+create table Promocion
+(
+    idPromocion         int identity
+        primary key,
+    nombrePromocion     varchar(100) not null,
+    descripcion         varchar(255),
+    tipoPromocion       varchar(30)  not null
+        check ([tipoPromocion] = 'Regalo' OR [tipoPromocion] = 'Precio Especial' OR [tipoPromocion] = '3x2' OR
+               [tipoPromocion] = '2x1' OR [tipoPromocion] = 'Descuento'),
+    porcentajeDescuento decimal(5, 2)
+        check ([porcentajeDescuento] >= 0 AND [porcentajeDescuento] <= 100),
+    cantidadCompra      int,
+    cantidadPaga        int,
+    aplicaProducto      int
+        references Producto,
+    aplicaCategoria     int
+        references Categoria,
+    aplicaMedioPago     varchar(20),
+    montoMinimo         decimal(10, 2) default 0,
+    fechaInicio         date         not null,
+    fechaFin            date         not null,
+    activa              bit            default 1,
+    estado              varchar(15)    default 'Activo'
+        check ([estado] = 'Inactivo' OR [estado] = 'Activo'),
+    check ([fechaFin] >= [fechaInicio])
+)
+go
+
+create index IX_Promocion_Fechas
+    on Promocion (fechaInicio, fechaFin, activa)
+go
+
+create table Proveedor
+(
+    idProveedor   int identity
+        primary key,
+    razonSocial   varchar(150) not null,
+    ruc           varchar(11)  not null
+        unique,
+    telefono      varchar(20),
+    email         varchar(80),
+    direccion     varchar(250),
+    contacto      varchar(100),
+    fechaRegistro date        default CONVERT([date], getdate()),
+    estado        varchar(15) default 'Activo'
+        check ([estado] = 'Inactivo' OR [estado] = 'Activo')
+)
+go
+
+create table Usuario
+(
+    idUsuario        int identity
+        primary key,
+    nombreUsuario    varchar(50)  not null
+        unique,
+    contrasena       varchar(255) not null,
+    nombreCompleto   varchar(150) not null,
+    rol              varchar(20)  not null
+        check ([rol] = 'Almacenero' OR [rol] = 'Vendedor' OR [rol] = 'Administrador'),
+    telefono         varchar(20),
+    email            varchar(80),
+    ultimoAcceso     datetime,
+    intentosFallidos int         default 0,
+    bloqueadoHasta   datetime,
+    fechaCreacion    datetime    default getdate(),
+    estado           varchar(15) default 'Activo'
+        check ([estado] = 'Inactivo' OR [estado] = 'Activo')
+)
+go
+
+create table Compra
+(
+    idCompra      int identity
+        primary key,
+    numeroCompra  varchar(20)    not null
+        unique,
+    idProveedor   int            not null
+        references Proveedor,
+    idAlmacen     int            not null
+        references Almacen,
+    idUsuario     int            not null
+        references Usuario,
+    fechaCompra   date        default CONVERT([date], getdate()),
+    numeroFactura varchar(50),
+    subtotal      decimal(12, 2) not null,
+    igv           decimal(12, 2) not null,
+    total         decimal(12, 2) not null,
+    observaciones varchar(500),
+    estado        varchar(20) default 'Completada'
+        check ([estado] = 'Anulada' OR [estado] = 'Completada')
+)
+go
+
+create table DetalleCompra
+(
+    idDetalle      int identity
+        primary key,
+    idCompra       int            not null
+        references Compra,
+    idProducto     int            not null
+        references Producto,
+    cantidad       int            not null
+        check ([cantidad] > 0),
+    precioUnitario decimal(10, 2) not null,
+    subtotal       decimal(12, 2) not null
+)
+go
+
+-- Trigger: Actualizar inventario al comprar
+CREATE TRIGGER TRG_ActualizarInventarioCompra
+ON DetalleCompra
+AFTER INSERT
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    DECLARE @stock_actual   DECIMAL(10,2) = 0;
-    DECLARE @stock_nuevo    DECIMAL(10,2);
-    DECLARE @registro_existe INT = 0;
-
+    
+    UPDATE inv
+    SET 
+        inv.stockActual = inv.stockActual + i.cantidad,
+        inv.ultimaActualizacion = GETDATE()
+    FROM Inventario inv
+    INNER JOIN inserted i ON inv.idProducto = i.idProducto
+    INNER JOIN Compra c ON i.idCompra = c.idCompra
+    WHERE inv.idAlmacen = c.idAlmacen;
+    
+    -- Registrar movimiento
+    INSERT INTO MovimientoInventario (idProducto, idAlmacen, tipoMovimiento, cantidad, stockAnterior, stockNuevo, referencia)
     SELECT 
-        @registro_existe = COUNT(*),
-        @stock_actual    = ISNULL(stock_actual, 0)
-    FROM dbo.inventario
-    WHERE id_producto = @p_id_producto
-      AND id_almacen  = @p_id_almacen;
-
-    IF @p_tipo_movimiento = 'ENTRADA'
-        SET @stock_nuevo = @stock_actual + @p_cantidad;
-    ELSE IF @p_tipo_movimiento = 'SALIDA'
-        SET @stock_nuevo = @stock_actual - @p_cantidad;
-    ELSE IF @p_tipo_movimiento = 'AJUSTE'
-        SET @stock_nuevo = @p_cantidad;
-    ELSE
-        SET @stock_nuevo = @stock_actual;
-
-    IF @registro_existe > 0
-    BEGIN
-        UPDATE dbo.inventario
-        SET 
-            stock_actual        = @stock_nuevo,
-            precio_costo        = @p_costo_unitario,
-            precio_venta_actual = @p_precio_venta,
-            fecha_actualizacion = GETDATE()
-        WHERE id_producto = @p_id_producto
-          AND id_almacen  = @p_id_almacen;
-    END
-    ELSE
-    BEGIN
-        INSERT INTO dbo.inventario (
-            id_producto, 
-            id_almacen, 
-            stock_actual, 
-            precio_costo, 
-            precio_venta_actual
-        )
-        VALUES (
-            @p_id_producto, 
-            @p_id_almacen, 
-            @stock_nuevo, 
-            @p_costo_unitario, 
-            @p_precio_venta
-        );
-    END
-END
+        i.idProducto,
+        c.idAlmacen,
+        'Entrada',
+        i.cantidad,
+        inv.stockActual - i.cantidad,
+        inv.stockActual,
+        'COMPRA-' + c.numeroCompra
+    FROM inserted i
+    INNER JOIN Compra c ON i.idCompra = c.idCompra
+    INNER JOIN Inventario inv ON i.idProducto = inv.idProducto AND inv.idAlmacen = c.idAlmacen;
+END;
 go
 
-
-CREATE FUNCTION dbo.GenerarNumeroMovimiento
+create table MovimientoInventario
 (
-    @tipo VARCHAR(10)
+    idMovimiento    int identity
+        primary key,
+    idProducto      int         not null
+        references Producto,
+    idAlmacen       int         not null
+        references Almacen,
+    tipoMovimiento  varchar(30) not null
+        check ([tipoMovimiento] = 'Transferencia' OR [tipoMovimiento] = 'Ajuste' OR [tipoMovimiento] = 'Salida' OR
+               [tipoMovimiento] = 'Entrada'),
+    cantidad        int         not null,
+    stockAnterior   int         not null,
+    stockNuevo      int         not null,
+    motivo          varchar(200),
+    referencia      varchar(100),
+    idUsuario       int
+        references Usuario,
+    fechaMovimiento datetime default getdate()
 )
-RETURNS VARCHAR(50)
-AS
-BEGIN
-    DECLARE @siguiente_numero   INT;
-    DECLARE @prefijo            VARCHAR(5);
-    DECLARE @numero_completo    VARCHAR(50);
-
-    IF @tipo = 'ENTRADA' SET @prefijo = 'ENT';
-    ELSE IF @tipo = 'SALIDA' SET @prefijo = 'SAL';
-    ELSE IF @tipo = 'AJUSTE' SET @prefijo = 'AJU';
-    ELSE SET @prefijo = 'MOV';
-
-    SELECT 
-        @siguiente_numero = ISNULL(
-            MAX(CAST(SUBSTRING(numero_movimiento, LEN(@prefijo) + 1,  10) AS INT))
-        , 0) + 1
-    FROM dbo.movimientos_inventario
-    WHERE numero_movimiento LIKE @prefijo + '%';
-
-    SET @numero_completo = @prefijo 
-        + RIGHT('000000' + CAST(@siguiente_numero AS VARCHAR(6)), 6);
-
-    RETURN @numero_completo;
-END
 go
 
+create index IX_MovimientoInventario_Fecha
+    on MovimientoInventario (fechaMovimiento)
+go
 
-CREATE FUNCTION dbo.GenerarNumeroMovimientoCaja
+-- ============================================================
+-- TRIGGER: Auditoría de cambios importantes en Usuario
+-- ============================================================
+CREATE   TRIGGER TRG_AuditoriaUsuario
+    ON Usuario
+    AFTER UPDATE
+    AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Detectar cambios importantes
+    IF UPDATE(rol) OR UPDATE(estado)
+        BEGIN
+            INSERT INTO LogAcceso (nombreUsuario, exitoso, ipAcceso, motivo)
+            SELECT
+                i.nombreUsuario,
+                1,
+                NULL,
+                'Cambio detectado - Rol: ' +
+                CASE WHEN i.rol != d.rol THEN 'De ' + d.rol + ' a ' + i.rol ELSE 'Sin cambio' END +
+                ', Estado: ' +
+                CASE WHEN i.estado != d.estado THEN 'De ' + d.estado + ' a ' + i.estado ELSE 'Sin cambio' END
+            FROM inserted i
+                     INNER JOIN deleted d ON i.idUsuario = d.idUsuario
+            WHERE i.rol != d.rol OR i.estado != d.estado;
+        END
+END;
+go
+
+CREATE TRIGGER TRG_LimpiarBloqueosExpirados
+    ON Usuario
+    AFTER UPDATE
+    AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Limpiar bloqueos que ya expiraron al hacer UPDATE
+    UPDATE Usuario
+    SET bloqueadoHasta = NULL,
+        intentosFallidos = 0
+    WHERE bloqueadoHasta IS NOT NULL
+      AND bloqueadoHasta <= GETDATE()
+      AND idUsuario IN (SELECT idUsuario FROM inserted);
+END;
+go
+
+create table Venta
 (
-    @tipo VARCHAR(10)
+    idVenta        int identity
+        primary key,
+    numeroVenta    varchar(20)              not null
+        unique,
+    idCliente      int                      not null
+        references Cliente,
+    idUsuario      int                      not null
+        references Usuario,
+    idMedioPago    int                      not null
+        references MedioPago,
+    fechaVenta     datetime       default getdate(),
+    subtotal       decimal(12, 2) default 0 not null,
+    descuentoTotal decimal(12, 2) default 0,
+    igv            decimal(12, 2) default 0 not null,
+    total          decimal(12, 2) default 0 not null,
+    modalidadVenta varchar(20)
+        check ([modalidadVenta] = 'Mixta' OR [modalidadVenta] = 'Mayorista' OR [modalidadVenta] = 'Docena' OR
+               [modalidadVenta] = 'Unidad'),
+    observaciones  varchar(500),
+    estado         varchar(20)    default 'Completada'
+        check ([estado] = 'Anulada' OR [estado] = 'Completada')
 )
-RETURNS VARCHAR(50)
-AS
-BEGIN
-    DECLARE @siguiente_numero   INT;
-    DECLARE @prefijo            VARCHAR(5);
-    DECLARE @numero_completo    VARCHAR(50);
-
-    IF @tipo = 'ENTRADA' SET @prefijo = 'ECAJ';
-    ELSE IF @tipo = 'SALIDA' SET @prefijo = 'SCAJ';
-    ELSE SET @prefijo = 'MCAJ';
-
-    SELECT 
-        @siguiente_numero = ISNULL(
-            MAX(CAST(
-                SUBSTRING(
-                    numero_movimiento, 
-                    LEN(@prefijo) + 1, 
-                    10
-                ) AS INT)
-            )
-        , 0) + 1
-    FROM dbo.movimientos_caja
-    WHERE numero_movimiento LIKE @prefijo + '%';
-
-    SET @numero_completo = @prefijo 
-        + RIGHT('000000' + CAST(@siguiente_numero AS VARCHAR(6)), 6);
-
-    RETURN @numero_completo;
-END
 go
 
-
-CREATE FUNCTION dbo.GenerarNumeroSesion()
-RETURNS VARCHAR(50)
-AS
-BEGIN
-    DECLARE @siguiente_numero   INT;
-    DECLARE @fecha_actual       CHAR(8);
-    DECLARE @numero_completo    VARCHAR(50);
-
-    -- Formato: SESYYYYMMDD-NNNN
-    SET @fecha_actual = CONVERT(CHAR(8), GETDATE(), 112);  
-
-    SELECT 
-        @siguiente_numero = ISNULL(
-            MAX(CAST(RIGHT(numero_sesion, 4) AS INT))
-        , 0) + 1
-    FROM dbo.sesiones_caja
-    WHERE numero_sesion LIKE 'SES' + @fecha_actual + '-%';
-
-    SET @numero_completo = 'SES' 
-        + @fecha_actual 
-        + '-' 
-        + RIGHT('0000' + CAST(@siguiente_numero AS VARCHAR(4)), 4);
-
-    RETURN @numero_completo;
-END
+create table DetalleVenta
+(
+    idDetalle           int identity
+        primary key,
+    idVenta             int            not null
+        references Venta,
+    idProducto          int            not null
+        references Producto,
+    idAlmacen           int            not null
+        references Almacen,
+    cantidad            int            not null
+        check ([cantidad] > 0),
+    modalidadVenta      varchar(20)    not null
+        check ([modalidadVenta] = 'Mayorista' OR [modalidadVenta] = 'Docena' OR [modalidadVenta] = 'Unidad'),
+    precioUnitario      decimal(10, 2) not null,
+    descuentoPromocion  decimal(10, 2) default 0,
+    descuentoAdicional  decimal(10, 2) default 0,
+    idPromocionAplicada int
+        references Promocion,
+    subtotal            decimal(12, 2) not null
+)
 go
 
-
-CREATE FUNCTION dbo.GenerarNumeroTicket()
-RETURNS VARCHAR(50)
-AS
-BEGIN
-    DECLARE @siguiente_numero   INT;
-    DECLARE @mes_actual         CHAR(6);
-    DECLARE @numero_completo    VARCHAR(50);
-
-    -- Formato: YYYYMM-NNNNNN
-    SET @mes_actual = SUBSTRING(CONVERT(CHAR(8), GETDATE(), 112), 1, 6);
-
-    SELECT 
-        @siguiente_numero = ISNULL(
-            MAX(CAST(RIGHT(numero_ticket, 6) AS INT))
-        , 0) + 1
-    FROM dbo.ventas
-    WHERE numero_ticket LIKE @mes_actual + '-%';
-
-    SET @numero_completo = @mes_actual 
-        + '-' 
-        + RIGHT('000000' + CAST(@siguiente_numero AS VARCHAR(6)), 6);
-
-    RETURN @numero_completo;
-END
-go
-
--- SP para actualizar stock
-CREATE PROCEDURE SP_ActualizarStock
-    @CodigoProducto VARCHAR(20),
-    @CodigoAlmacen VARCHAR(10),
-    @TipoMovimiento VARCHAR(20), -- 'ENTRADA', 'SALIDA', 'AJUSTE'
-    @Cantidad INT,
-    @IdUsuario INT,
-    @Referencia VARCHAR(50) = NULL,
-    @Observaciones VARCHAR(200) = NULL,
-    @Resultado INT OUTPUT,
-    @Mensaje VARCHAR(200) OUTPUT
+-- Trigger: Actualizar inventario al vender
+CREATE TRIGGER TRG_ActualizarInventarioVenta
+ON DetalleVenta
+AFTER INSERT
 AS
 BEGIN
     SET NOCOUNT ON;
+    
+    UPDATE inv
+    SET 
+        inv.stockActual = inv.stockActual - i.cantidad,
+        inv.ultimaActualizacion = GETDATE()
+    FROM Inventario inv
+    INNER JOIN inserted i ON inv.idProducto = i.idProducto AND inv.idAlmacen = i.idAlmacen;
+    
+    -- Registrar movimiento
+    INSERT INTO MovimientoInventario (idProducto, idAlmacen, tipoMovimiento, cantidad, stockAnterior, stockNuevo, referencia)
+    SELECT 
+        i.idProducto,
+        i.idAlmacen,
+        'Salida',
+        i.cantidad,
+        inv.stockActual + i.cantidad,
+        inv.stockActual,
+        'VENTA-' + v.numeroVenta
+    FROM inserted i
+    INNER JOIN Inventario inv ON i.idProducto = inv.idProducto AND i.idAlmacen = i.idAlmacen
+    INNER JOIN Venta v ON i.idVenta = v.idVenta;
+END;
+go
+
+-- Trigger: Actualizar totales de venta automáticamente
+CREATE TRIGGER TRG_ActualizarTotalesVenta
+ON DetalleVenta
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @idVenta INT;
+    
+    SELECT @idVenta = COALESCE(i.idVenta, d.idVenta)
+    FROM (SELECT idVenta FROM inserted UNION SELECT idVenta FROM deleted) AS cambios(idVenta)
+    LEFT JOIN inserted i ON cambios.idVenta = i.idVenta
+    LEFT JOIN deleted d ON cambios.idVenta = d.idVenta;
+    
+    UPDATE Venta
+    SET 
+        subtotal = ISNULL((SELECT SUM(subtotal) FROM DetalleVenta WHERE idVenta = @idVenta), 0),
+        descuentoTotal = ISNULL((SELECT SUM(descuentoPromocion + descuentoAdicional) FROM DetalleVenta WHERE idVenta = @idVenta), 0),
+        igv = ISNULL((SELECT SUM(subtotal) FROM DetalleVenta WHERE idVenta = @idVenta), 0) * 0.18,
+        total = ISNULL((SELECT SUM(subtotal) FROM DetalleVenta WHERE idVenta = @idVenta), 0) * 1.18
+    WHERE idVenta = @idVenta;
+END;
+go
+
+create index IX_Venta_Fecha
+    on Venta (fechaVenta)
+go
+
+create index IX_Venta_Cliente
+    on Venta (idCliente)
+go
+
+CREATE VIEW VW_AccesosRecientes AS
+SELECT TOP 100
+    l.idLog,
+    l.nombreUsuario,
+    l.exitoso,
+    l.ipAcceso,
+    l.fechaIntento,
+    l.motivo,
+    u.rol,
+    u.nombreCompleto
+FROM LogAcceso l
+         LEFT JOIN Usuario u ON l.nombreUsuario = u.nombreUsuario
+ORDER BY l.fechaIntento DESC
+go
+
+-- ============================================================
+-- VISTA: Actividad de login del día
+-- ============================================================
+CREATE   VIEW VW_ActividadLoginHoy AS
+SELECT
+    COUNT(*) AS totalIntentos,
+    SUM(CASE WHEN exitoso = 1 THEN 1 ELSE 0 END) AS exitosos,
+    SUM(CASE WHEN exitoso = 0 THEN 1 ELSE 0 END) AS fallidos,
+    COUNT(DISTINCT nombreUsuario) AS usuariosUnicos,
+    COUNT(DISTINCT ipAcceso) AS ipsUnicas
+FROM LogAcceso
+WHERE CAST(fechaIntento AS DATE) = CAST(GETDATE() AS DATE)
+go
+
+-- ============================================================
+-- VISTA: Dashboard de usuarios para administrador
+-- ============================================================
+CREATE   VIEW VW_DashboardUsuarios AS
+SELECT
+    u.idUsuario,
+    u.nombreUsuario,
+    u.nombreCompleto,
+    u.rol,
+    u.email,
+    u.ultimoAcceso,
+    u.estado,
+    CASE
+        WHEN u.bloqueadoHasta IS NOT NULL AND u.bloqueadoHasta > GETDATE()
+            THEN 'Bloqueado'
+        WHEN u.estado = 'Inactivo'
+            THEN 'Inactivo'
+        ELSE 'Activo'
+        END AS estadoActual,
+    u.intentosFallidos,
+    DATEDIFF(DAY, u.fechaCreacion, GETDATE()) AS diasRegistrado,
+    (SELECT COUNT(*) FROM LogAcceso WHERE nombreUsuario = u.nombreUsuario AND exitoso = 1) AS totalAccesosExitosos,
+    (SELECT COUNT(*) FROM LogAcceso WHERE nombreUsuario = u.nombreUsuario AND exitoso = 0) AS totalAccesosFallidos,
+    (SELECT TOP 1 fechaIntento FROM LogAcceso WHERE nombreUsuario = u.nombreUsuario AND exitoso = 1 ORDER BY fechaIntento DESC) AS ultimoAccesoExitoso
+FROM Usuario u
+go
+
+-- Vista: Promociones activas hoy
+CREATE VIEW VW_PromocionesActivas AS
+SELECT 
+    pr.idPromocion,
+    pr.nombrePromocion,
+    pr.descripcion,
+    pr.tipoPromocion,
+    pr.porcentajeDescuento,
+    pr.cantidadCompra,
+    pr.cantidadPaga,
+    pr.aplicaMedioPago,
+    pr.montoMinimo,
+    p.nombreProducto AS productoAplica,
+    c.nombreCategoria AS categoriaAplica,
+    pr.fechaInicio,
+    pr.fechaFin
+FROM Promocion pr
+LEFT JOIN Producto p ON pr.aplicaProducto = p.idProducto
+LEFT JOIN Categoria c ON pr.aplicaCategoria = c.idCategoria
+WHERE pr.activa = 1 
+    AND CAST(GETDATE() AS DATE) BETWEEN pr.fechaInicio AND pr.fechaFin
+    AND pr.estado = 'Activo'
+go
+
+-- Vista: Stock consolidado de ambos almacenes
+CREATE VIEW VW_StockConsolidado AS
+SELECT 
+    p.codigoProducto,
+    p.nombreProducto,
+    c.nombreCategoria,
+    m.nombreMarca,
+    ISNULL(SUM(i.stockActual), 0) AS stockTotal,
+    ISNULL(SUM(CASE WHEN i.idAlmacen = 251 THEN i.stockActual ELSE 0 END), 0) AS stock251,
+    ISNULL(SUM(CASE WHEN i.idAlmacen = 252 THEN i.stockActual ELSE 0 END), 0) AS stock252,
+    p.stockMinimo,
+    CASE 
+        WHEN ISNULL(SUM(i.stockActual), 0) = 0 THEN 'SIN STOCK'
+        WHEN ISNULL(SUM(i.stockActual), 0) <= p.stockMinimo THEN 'CRÍTICO'
+        WHEN ISNULL(SUM(i.stockActual), 0) <= (p.stockMinimo * 2) THEN 'BAJO'
+        ELSE 'NORMAL'
+    END AS estadoStock,
+    p.precioUnidad,
+    p.precioDocena,
+    p.precioMayorista
+FROM Producto p
+LEFT JOIN Inventario i ON p.idProducto = i.idProducto
+LEFT JOIN Categoria c ON p.idCategoria = c.idCategoria
+LEFT JOIN Marca m ON p.idMarca = m.idMarca
+WHERE p.estado = 'Activo'
+GROUP BY 
+    p.idProducto, p.codigoProducto, p.nombreProducto, 
+    c.nombreCategoria, m.nombreMarca, p.stockMinimo,
+    p.precioUnidad, p.precioDocena, p.precioMayorista
+go
+
+-- Vista: Top productos más vendidos
+CREATE VIEW VW_TopProductosVendidos AS
+SELECT TOP 20
+    p.codigoProducto,
+    p.nombreProducto,
+    c.nombreCategoria,
+    SUM(dv.cantidad) AS totalVendido,
+    SUM(dv.subtotal) AS ingresoTotal,
+    COUNT(DISTINCT dv.idVenta) AS numeroVentas,
+    AVG(dv.precioUnitario) AS precioPromedio
+FROM DetalleVenta dv
+INNER JOIN Producto p ON dv.idProducto = p.idProducto
+INNER JOIN Categoria c ON p.idCategoria = c.idCategoria
+INNER JOIN Venta v ON dv.idVenta = v.idVenta
+WHERE v.estado = 'Completada'
+    AND v.fechaVenta >= DATEADD(MONTH, -1, GETDATE())
+GROUP BY p.codigoProducto, p.nombreProducto, c.nombreCategoria
+ORDER BY totalVendido DESC
+go
+
+CREATE VIEW VW_UsuariosBloqueados AS
+SELECT
+    u.idUsuario,
+    u.nombreUsuario,
+    u.nombreCompleto,
+    u.rol,
+    u.bloqueadoHasta,
+    DATEDIFF(MINUTE, GETDATE(), u.bloqueadoHasta) AS minutosRestantes,
+    u.intentosFallidos
+FROM Usuario u
+WHERE u.bloqueadoHasta IS NOT NULL
+  AND u.bloqueadoHasta > GETDATE()
+  AND u.estado = 'Activo'
+go
+
+-- ============================================================
+-- VISTA: Usuarios bloqueados actualmente
+-- ============================================================
+CREATE   VIEW VW_UsuariosBloqueadosActuales AS
+SELECT
+    u.idUsuario,
+    u.nombreUsuario,
+    u.nombreCompleto,
+    u.rol,
+    u.bloqueadoHasta,
+    DATEDIFF(MINUTE, GETDATE(), u.bloqueadoHasta) AS minutosRestantes,
+    u.intentosFallidos,
+    (SELECT TOP 1 motivo FROM LogAcceso WHERE nombreUsuario = u.nombreUsuario AND exitoso = 0 ORDER BY fechaIntento DESC) AS ultimoMotivo
+FROM Usuario u
+WHERE u.bloqueadoHasta IS NOT NULL
+  AND u.bloqueadoHasta > GETDATE()
+  AND u.estado = 'Activo'
+go
+
+-- Vista: Ventas del día
+CREATE VIEW VW_VentasHoy AS
+SELECT 
+    v.numeroVenta,
+    c.razonSocial AS cliente,
+    c.tipoCliente,
+    v.fechaVenta,
+    v.modalidadVenta,
+    mp.nombreMedio AS medioPago,
+    v.subtotal,
+    v.descuentoTotal,
+    v.igv,
+    v.total,
+    u.nombreCompleto AS vendedor
+FROM Venta v
+INNER JOIN Cliente c ON v.idCliente = c.idCliente
+INNER JOIN Usuario u ON v.idUsuario = u.idUsuario
+INNER JOIN MedioPago mp ON v.idMedioPago = mp.idMedioPago
+WHERE CAST(v.fechaVenta AS DATE) = CAST(GETDATE() AS DATE)
+    AND v.estado = 'Completada'
+go
+
+-- Función: Calcular precio según modalidad
+CREATE FUNCTION FN_CalcularPrecio
+(
+    @idProducto INT,
+    @modalidad VARCHAR(20)
+)
+RETURNS DECIMAL(10,2)
+AS
+BEGIN
+    DECLARE @precio DECIMAL(10,2);
+    
+    SELECT @precio = CASE @modalidad
+        WHEN 'Unidad' THEN precioUnidad
+        WHEN 'Docena' THEN precioDocena / 12.0
+        WHEN 'Mayorista' THEN precioMayorista
+        ELSE precioUnidad
+    END
+    FROM Producto
+    WHERE idProducto = @idProducto;
+    
+    RETURN ISNULL(@precio, 0);
+END
+go
+
+-- Función: Verificar si producto tiene stock suficiente
+CREATE FUNCTION FN_TieneStockSuficiente
+(
+    @idProducto INT,
+    @idAlmacen INT,
+    @cantidadRequerida INT
+)
+RETURNS BIT
+AS
+BEGIN
+    DECLARE @resultado BIT;
+    DECLARE @stockActual INT;
+    
+    SELECT @stockActual = stockActual
+    FROM Inventario
+    WHERE idProducto = @idProducto AND idAlmacen = @idAlmacen;
+    
+    SET @resultado = CASE 
+        WHEN @stockActual >= @cantidadRequerida THEN 1
+        ELSE 0
+    END;
+    
+    RETURN @resultado;
+END
+go
+
+-- ============================================================
+-- FUNCIÓN: Validar fortaleza de contraseña
+-- ============================================================
+CREATE   FUNCTION FN_ValidarFortalezaContrasena
+(
+    @contrasena VARCHAR(255)
+)
+    RETURNS VARCHAR(20)
+AS
+BEGIN
+    DECLARE @fortaleza VARCHAR(20) = 'Débil';
+    DECLARE @longitud INT = LEN(@contrasena);
+    DECLARE @tieneMayuscula BIT = 0;
+    DECLARE @tieneMinuscula BIT = 0;
+    DECLARE @tieneNumero BIT = 0;
+    DECLARE @tieneEspecial BIT = 0;
+
+    -- Verificar mayúsculas
+    IF @contrasena COLLATE Latin1_General_CS_AS LIKE '%[A-Z]%'
+        SET @tieneMayuscula = 1;
+
+    -- Verificar minúsculas
+    IF @contrasena COLLATE Latin1_General_CS_AS LIKE '%[a-z]%'
+        SET @tieneMinuscula = 1;
+
+    -- Verificar números
+    IF @contrasena LIKE '%[0-9]%'
+        SET @tieneNumero = 1;
+
+    -- Verificar caracteres especiales
+    IF @contrasena LIKE '%[!@#$%^&*()]%'
+        SET @tieneEspecial = 1;
+
+    -- Calcular fortaleza
+    DECLARE @puntos INT = 0;
+
+    IF @longitud >= 8 SET @puntos = @puntos + 1;
+    IF @longitud >= 12 SET @puntos = @puntos + 1;
+    IF @tieneMayuscula = 1 SET @puntos = @puntos + 1;
+    IF @tieneMinuscula = 1 SET @puntos = @puntos + 1;
+    IF @tieneNumero = 1 SET @puntos = @puntos + 1;
+    IF @tieneEspecial = 1 SET @puntos = @puntos + 1;
+
+    IF @puntos <= 2
+        SET @fortaleza = 'Débil';
+    ELSE IF @puntos <= 4
+        SET @fortaleza = 'Media';
+    ELSE
+        SET @fortaleza = 'Fuerte';
+
+    RETURN @fortaleza;
+END
+go
+
+CREATE   PROCEDURE SP_ActualizarUsuario
+    @idUsuario INT,
+    @nombreCompleto VARCHAR(150),
+    @telefono VARCHAR(20),
+    @email VARCHAR(80),
+    @actualizado BIT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @actualizado = 0;
+
     BEGIN TRY
-        BEGIN TRANSACTION;
-
-        DECLARE @StockActual INT;
-        DECLARE @NuevoStock INT;
-
-        -- Obtener stock actual
-        SELECT @StockActual = STOCK_ACTUAL
-        FROM INVENTARIO_SM
-        WHERE COD_PRODUCTO = @CodigoProducto AND COD_ALMACEN = @CodigoAlmacen;
-
-        IF @StockActual IS NULL
-        BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'No existe registro de inventario para este producto y almacén';
-            ROLLBACK TRANSACTION;
-            RETURN;
-        END
-
-        -- Calcular nuevo stock según tipo de movimiento
-        IF @TipoMovimiento = 'ENTRADA' OR @TipoMovimiento = 'AJUSTE'
-        BEGIN
-            SET @NuevoStock = @StockActual + @Cantidad;
-        END
-        ELSE IF @TipoMovimiento = 'SALIDA'
-        BEGIN
-            IF @StockActual < @Cantidad
+        -- Verificar que el email no esté usado por otro usuario
+        IF EXISTS (SELECT 1 FROM Usuario WHERE email = @email AND idUsuario != @idUsuario)
             BEGIN
-                SET @Resultado = 0;
-                SET @Mensaje = 'Stock insuficiente. Stock actual: ' + CAST(@StockActual AS VARCHAR);
-                ROLLBACK TRANSACTION;
+                RAISERROR('El email ya está registrado por otro usuario', 16, 1);
                 RETURN;
             END
-            SET @NuevoStock = @StockActual - @Cantidad;
-        END
 
-        -- Actualizar inventario
-        UPDATE INVENTARIO_SM
-        SET STOCK_ACTUAL = @NuevoStock,
-            FECHA_MODIFICACION = GETDATE(),
-            USUARIO_MODIFICA = @IdUsuario
-        WHERE COD_PRODUCTO = @CodigoProducto AND COD_ALMACEN = @CodigoAlmacen;
+        UPDATE Usuario
+        SET nombreCompleto = @nombreCompleto,
+            telefono = @telefono,
+            email = @email
+        WHERE idUsuario = @idUsuario;
 
-        -- Registrar movimiento
-        INSERT INTO MOVIMIENTO_INVENTARIO (
-            COD_PRODUCTO, COD_ALMACEN, TIPO_MOVIMIENTO, CANTIDAD,
-            STOCK_ANTERIOR, STOCK_NUEVO, USUARIO_MOVIMIENTO, REFERENCIA, OBSERVACIONES
-        )
-        VALUES (
-            @CodigoProducto, @CodigoAlmacen, @TipoMovimiento, @Cantidad,
-            @StockActual, @NuevoStock, @IdUsuario, @Referencia, @Observaciones
-        );
-
-        COMMIT TRANSACTION;
-        SET @Resultado = 1;
-        SET @Mensaje = 'Stock actualizado exitosamente';
-
+        SET @actualizado = 1;
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;
-        SET @Resultado = 0;
-        SET @Mensaje = 'Error al actualizar stock: ' + ERROR_MESSAGE();
+        SET @actualizado = 0;
+        THROW;
     END CATCH
-END
+END;
 go
 
--- SP para obtener movimientos de inventario
-CREATE PROCEDURE SP_ConsultarMovimientosInventario
-    @CodigoProducto VARCHAR(20) = NULL,
-    @CodigoAlmacen VARCHAR(10) = NULL,
-    @FechaInicio DATETIME = NULL,
-    @FechaFin DATETIME = NULL,
-    @TipoMovimiento VARCHAR(20) = NULL
+-- SP: Aplicar promoción a un producto
+CREATE PROCEDURE SP_AplicarPromocion
+    @idProducto INT,
+    @cantidad INT,
+    @idMedioPago INT,
+    @montoVenta DECIMAL(12,2),
+    @descuento DECIMAL(10,2) OUTPUT,
+    @idPromocion INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SET @descuento = 0;
+    SET @idPromocion = NULL;
+    
+    -- Buscar promoción aplicable
+    SELECT TOP 1 
+        @idPromocion = idPromocion,
+        @descuento = CASE 
+            WHEN tipoPromocion = 'Descuento' THEN (@montoVenta * porcentajeDescuento / 100)
+            ELSE 0
+        END
+    FROM Promocion
+    WHERE activa = 1
+        AND CAST(GETDATE() AS DATE) BETWEEN fechaInicio AND fechaFin
+        AND estado = 'Activo'
+        AND (aplicaProducto IS NULL OR aplicaProducto = @idProducto)
+        AND (aplicaMedioPago IS NULL OR aplicaMedioPago = (SELECT nombreMedio FROM MedioPago WHERE idMedioPago = @idMedioPago))
+        AND @montoVenta >= montoMinimo
+    ORDER BY porcentajeDescuento DESC;
+    
+    SELECT @descuento AS descuento, @idPromocion AS idPromocion;
+END;
+go
+
+CREATE PROCEDURE SP_CambiarContrasena
+    @idUsuario INT,
+    @contrasenaActual VARCHAR(255),
+    @contrasenaNueva VARCHAR(255),
+    @cambioExitoso BIT OUTPUT,
+    @contrasenaActualIncorrecta BIT OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT
-        mi.ID_MOVIMIENTO,
-        mi.COD_PRODUCTO,
-        p.NOMBRE_PRO,
-        mi.COD_ALMACEN,
-        a.NOMBRE_ALMACEN,
-        mi.TIPO_MOVIMIENTO,
-        mi.CANTIDAD,
-        mi.STOCK_ANTERIOR,
-        mi.STOCK_NUEVO,
-        mi.FECHA_MOVIMIENTO,
-        u.NOMBRE_US as USUARIO,
-        mi.REFERENCIA,
-        mi.OBSERVACIONES
-    FROM MOVIMIENTO_INVENTARIO mi
-    INNER JOIN PRODUCTO_SM p ON mi.COD_PRODUCTO = p.COD_PRODUCTO
-    INNER JOIN ALMACEN_SM a ON mi.COD_ALMACEN = a.COD_ALMACEN
-    INNER JOIN USUARIOS_SM u ON mi.USUARIO_MOVIMIENTO = u.ID_USUARIO
-    WHERE (@CodigoProducto IS NULL OR mi.COD_PRODUCTO = @CodigoProducto)
-    AND (@CodigoAlmacen IS NULL OR mi.COD_ALMACEN = @CodigoAlmacen)
-    AND (@FechaInicio IS NULL OR mi.FECHA_MOVIMIENTO >= @FechaInicio)
-    AND (@FechaFin IS NULL OR mi.FECHA_MOVIMIENTO <= @FechaFin)
-    AND (@TipoMovimiento IS NULL OR mi.TIPO_MOVIMIENTO = @TipoMovimiento)
-    ORDER BY mi.FECHA_MOVIMIENTO DESC;
-END
-go
+    SET @cambioExitoso = 0;
+    SET @contrasenaActualIncorrecta = 0;
 
--- SP para obtener información de productos con stock
-CREATE PROCEDURE SP_ConsultarProductosConStock
-    @CodigoProducto VARCHAR(20) = NULL,
-    @IdCategoria INT = NULL,
-    @IdMarca INT = NULL,
-    @SoloConStock BIT = 1
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT
-        p.COD_PRODUCTO,
-        p.NOMBRE_PRO,
-        p.DESCRIPCION,
-        p.PRECIO_COMPRA,
-        p.PRECIO_VENTA,
-        p.STOCK_MINIMO,
-        p.LOTE_PRO,
-        p.FECHA_VENCIMIENTO,
-        c.NOMBRE_CAT as CATEGORIA,
-        m.NOMBRE_MAR as MARCA,
-        pr.RAZON_SOCIAL as PROVEEDOR,
-        e.DESCRIP_ESTA as ESTADO,
-        -- Stock por almacén
-        SUM(CASE WHEN i.COD_ALMACEN = 'ALM01' THEN i.STOCK_ACTUAL ELSE 0 END) as STOCK_ALM01,
-        SUM(CASE WHEN i.COD_ALMACEN = 'ALM02' THEN i.STOCK_ACTUAL ELSE 0 END) as STOCK_ALM02,
-        SUM(i.STOCK_ACTUAL) as STOCK_TOTAL,
-        -- Alertas
-        CASE
-            WHEN SUM(i.STOCK_ACTUAL) <= p.STOCK_MINIMO THEN 'STOCK_BAJO'
-            WHEN p.FECHA_VENCIMIENTO <= DATEADD(MONTH, 1, GETDATE()) THEN 'PROXIMO_VENCER'
-            ELSE 'OK'
-        END as ALERTA
-    FROM PRODUCTO_SM p
-    INNER JOIN CATEGORIA_SM c ON p.ID_CATEGORIA = c.ID_CATEGORIA
-    INNER JOIN MARCA_SM m ON p.ID_MARCA = m.ID_MARCA
-    INNER JOIN PROVEEDOR_SM pr ON p.COD_PROV = pr.COD_PROV
-    INNER JOIN ESTADO_SM e ON p.ID_ESTADO = e.ID_ESTADO
-    LEFT JOIN INVENTARIO_SM i ON p.COD_PRODUCTO = i.COD_PRODUCTO
-    WHERE (@CodigoProducto IS NULL OR p.COD_PRODUCTO = @CodigoProducto)
-    AND (@IdCategoria IS NULL OR p.ID_CATEGORIA = @IdCategoria)
-    AND (@IdMarca IS NULL OR p.ID_MARCA = @IdMarca)
-    AND p.ID_ESTADO = 1 -- Solo activos
-    GROUP BY p.COD_PRODUCTO, p.NOMBRE_PRO, p.DESCRIPCION, p.PRECIO_COMPRA, p.PRECIO_VENTA,
-             p.STOCK_MINIMO, p.LOTE_PRO, p.FECHA_VENCIMIENTO, c.NOMBRE_CAT, m.NOMBRE_MAR,
-             pr.RAZON_SOCIAL, e.DESCRIP_ESTA
-    HAVING (@SoloConStock = 0 OR SUM(i.STOCK_ACTUAL) > 0)
-    ORDER BY p.NOMBRE_PRO;
-END
-go
-
--- SP para consultar ventas por período
-CREATE PROCEDURE SP_ConsultarVentasPorPeriodo
-    @FechaInicio DATE,
-    @FechaFin DATE,
-    @IdUsuario INT = NULL,
-    @IdCliente VARCHAR(20) = NULL
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT
-        v.COD_FACTURA,
-        v.FECHA_VENTA,
-        CONCAT(p.NOMBRE_SM, ' ', p.APELLIDO_SM) as CLIENTE,
-        u.NOMBRE_US as VENDEDOR,
-        v.SUBTOTAL,
-        v.IGV_TOTAL,
-        v.DESCUENTO_TOTAL,
-        v.TOTAL_VENTA,
-        v.METODO_PAGO,
-        v.ESTADO_VENTA,
-        -- Cantidad de items
-        COUNT(vd.ID_DETALLE) as CANTIDAD_ITEMS,
-        -- Total de productos vendidos
-        SUM(vd.CANTIDAD) as TOTAL_PRODUCTOS
-    FROM VENTA_CABECERA_SM v
-    INNER JOIN CLIENTE_SM c ON v.ID_CLIENTE = c.ID_CLIENTE
-    INNER JOIN PERSONA_SM p ON c.DNI_SM = p.DNI_SM
-    INNER JOIN USUARIOS_SM u ON v.ID_USUARIO = u.ID_USUARIO
-    LEFT JOIN VENTA_DETALLE_SM vd ON v.COD_FACTURA = vd.COD_FACTURA
-    WHERE CAST(v.FECHA_VENTA AS DATE) BETWEEN @FechaInicio AND @FechaFin
-    AND (@IdUsuario IS NULL OR v.ID_USUARIO = @IdUsuario)
-    AND (@IdCliente IS NULL OR v.ID_CLIENTE = @IdCliente)
-    GROUP BY v.COD_FACTURA, v.FECHA_VENTA, p.NOMBRE_SM, p.APELLIDO_SM,
-             u.NOMBRE_US, v.SUBTOTAL, v.IGV_TOTAL, v.DESCUENTO_TOTAL,
-             v.TOTAL_VENTA, v.METODO_PAGO, v.ESTADO_VENTA
-    ORDER BY v.FECHA_VENTA DESC;
-END
-go
-
-CREATE PROCEDURE SP_CrearProducto
-    @CodigoProducto VARCHAR(20),
-    @NombreProducto VARCHAR(100),
-    @Descripcion VARCHAR(500) = NULL,
-    @PrecioCompra DECIMAL(10,2),
-    @PrecioVenta DECIMAL(10,2),
-    @StockMinimo INT = 5,
-    @Lote VARCHAR(20) = NULL,
-    @FechaVencimiento DATE = NULL,
-    @ImagenPath VARCHAR(200) = NULL,
-    @IdCategoria INT,
-    @IdMarca INT,
-    @CodProveedor INT,
-    @AlmacenElegido VARCHAR(10),
-    @StockInicialAlm01 INT = 0,
-    @StockInicialAlm02 INT = 0,
-    @IdUsuario INT,
-    @Resultado INT OUTPUT,
-    @Mensaje VARCHAR(200) OUTPUT
-AS
-BEGIN
-    SET NOCOUNT ON;
     BEGIN TRY
-        BEGIN TRANSACTION;
+        DECLARE @contrasenaDB VARCHAR(255);
 
-        -- Verificar que el código de producto no exista
-        IF EXISTS (SELECT 1 FROM PRODUCTO_SM WHERE COD_PRODUCTO = @CodigoProducto)
-        BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'El código de producto ya existe';
-            ROLLBACK TRANSACTION;
-            RETURN;
-        END
+        SELECT @contrasenaDB = contrasena
+        FROM Usuario
+        WHERE idUsuario = @idUsuario;
 
-        -- Verificar que existan las referencias
-        IF NOT EXISTS (SELECT 1 FROM CATEGORIA_SM WHERE ID_CATEGORIA = @IdCategoria)
-        BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'La categoría no existe';
-            ROLLBACK TRANSACTION;
-            RETURN;
-        END
+        -- Verificar contraseña actual
+        IF @contrasenaDB = @contrasenaActual
+            BEGIN
+                UPDATE Usuario
+                SET contrasena = @contrasenaNueva
+                WHERE idUsuario = @idUsuario;
 
-        IF NOT EXISTS (SELECT 1 FROM MARCA_SM WHERE ID_MARCA = @IdMarca)
-        BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'La marca no existe';
-            ROLLBACK TRANSACTION;
-            RETURN;
-        END
-
-        IF NOT EXISTS (SELECT 1 FROM PROVEEDOR_SM WHERE COD_PROV = @CodProveedor)
-        BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'El proveedor no existe';
-            ROLLBACK TRANSACTION;
-            RETURN;
-        END
-
-        -- Insertar producto
-        INSERT INTO PRODUCTO_SM (
-            COD_PRODUCTO, NOMBRE_PRO, DESCRIPCION, PRECIO_COMPRA, PRECIO_VENTA,
-            STOCK_MINIMO, LOTE_PRO, FECHA_VENCIMIENTO, IMAGEN_PATH,
-            ID_CATEGORIA, ID_MARCA, ID_ESTADO, COD_PROV
-        )
-        VALUES (
-            @CodigoProducto, @NombreProducto, @Descripcion, @PrecioCompra, @PrecioVenta,
-            @StockMinimo, @Lote, @FechaVencimiento, @ImagenPath,
-            @IdCategoria, @IdMarca, 1, @CodProveedor
-        );
-
-        -- Crear registros en inventario para ambos almacenes
-        INSERT INTO INVENTARIO_SM (COD_PRODUCTO, COD_ALMACEN, STOCK_ACTUAL, USUARIO_MODIFICA)
-        VALUES (@CodigoProducto, @AlmacenElegido, @StockInicialAlm01, @IdUsuario);
-
-        -- Registrar movimientos iniciales si hay stock
-        IF @StockInicialAlm01 > 0
-        BEGIN
-            INSERT INTO MOVIMIENTO_INVENTARIO (
-                COD_PRODUCTO, COD_ALMACEN, TIPO_MOVIMIENTO, CANTIDAD,
-                STOCK_ANTERIOR, STOCK_NUEVO, USUARIO_MOVIMIENTO, REFERENCIA, OBSERVACIONES
-            )
-            VALUES (
-                @CodigoProducto, 'ALM01', 'ENTRADA', @StockInicialAlm01,
-                0, @StockInicialAlm01, @IdUsuario, 'INICIAL', 'Stock inicial del producto'
-            );
-        END
-
-        IF @StockInicialAlm02 > 0
-        BEGIN
-            INSERT INTO MOVIMIENTO_INVENTARIO (
-                COD_PRODUCTO, COD_ALMACEN, TIPO_MOVIMIENTO, CANTIDAD,
-                STOCK_ANTERIOR, STOCK_NUEVO, USUARIO_MOVIMIENTO, REFERENCIA, OBSERVACIONES
-            )
-            VALUES (
-                @CodigoProducto, 'ALM02', 'ENTRADA', @StockInicialAlm02,
-                0, @StockInicialAlm02, @IdUsuario, 'INICIAL', 'Stock inicial del producto'
-            );
-        END
-
-        COMMIT TRANSACTION;
-        SET @Resultado = 1;
-        SET @Mensaje = 'Producto creado exitosamente';
+                SET @cambioExitoso = 1;
+            END
+        ELSE
+            BEGIN
+                SET @contrasenaActualIncorrecta = 1;
+            END
 
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;
-        SET @Resultado = 0;
-        SET @Mensaje = 'Error al crear producto: ' + ERROR_MESSAGE();
+        SET @cambioExitoso = 0;
     END CATCH
-END
+END;
 go
 
--- SP para desbloquear usuario (solo administrador)
+-- ============================================================
+-- SP: Activar/Desactivar usuario
+-- ============================================================
+CREATE   PROCEDURE SP_CambiarEstadoUsuario
+    @idUsuarioAdmin INT,
+    @idUsuarioModificar INT,
+    @nuevoEstado VARCHAR(15),
+    @cambioExitoso BIT OUTPUT,
+    @sinPermisos BIT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @cambioExitoso = 0;
+    SET @sinPermisos = 0;
+
+    BEGIN TRY
+        DECLARE @rolAdmin VARCHAR(20);
+
+        -- Verificar permisos
+        SELECT @rolAdmin = rol
+        FROM Usuario
+        WHERE idUsuario = @idUsuarioAdmin;
+
+        IF @rolAdmin != 'Administrador'
+            BEGIN
+                SET @sinPermisos = 1;
+                RETURN;
+            END
+
+        -- Validar estado
+        IF @nuevoEstado NOT IN ('Activo', 'Inactivo')
+            BEGIN
+                RAISERROR('Estado no válido', 16, 1);
+                RETURN;
+            END
+
+        -- No permitir que el admin se desactive a sí mismo
+        IF @idUsuarioAdmin = @idUsuarioModificar AND @nuevoEstado = 'Inactivo'
+            BEGIN
+                RAISERROR('No puede desactivarse a sí mismo', 16, 1);
+                RETURN;
+            END
+
+        UPDATE Usuario
+        SET estado = @nuevoEstado
+        WHERE idUsuario = @idUsuarioModificar;
+
+        SET @cambioExitoso = 1;
+
+        INSERT INTO LogAcceso (nombreUsuario, exitoso, ipAcceso, motivo)
+        VALUES (
+                   (SELECT nombreUsuario FROM Usuario WHERE idUsuario = @idUsuarioModificar),
+                   1,
+                   NULL,
+                   'Estado cambiado a ' + @nuevoEstado
+               );
+
+    END TRY
+    BEGIN CATCH
+        SET @cambioExitoso = 0;
+    END CATCH
+END;
+go
+
+-- ============================================================
+-- SP: Cambiar rol de usuario (solo administrador)
+-- ============================================================
+CREATE   PROCEDURE SP_CambiarRolUsuario
+    @idUsuarioAdmin INT,
+    @idUsuarioModificar INT,
+    @nuevoRol VARCHAR(20),
+    @cambioExitoso BIT OUTPUT,
+    @sinPermisos BIT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @cambioExitoso = 0;
+    SET @sinPermisos = 0;
+
+    BEGIN TRY
+        DECLARE @rolAdmin VARCHAR(20);
+
+        -- Verificar que quien modifica sea administrador
+        SELECT @rolAdmin = rol
+        FROM Usuario
+        WHERE idUsuario = @idUsuarioAdmin;
+
+        IF @rolAdmin != 'Administrador'
+            BEGIN
+                SET @sinPermisos = 1;
+                RETURN;
+            END
+
+        -- Validar el nuevo rol
+        IF @nuevoRol NOT IN ('Administrador', 'Vendedor', 'Almacenero')
+            BEGIN
+                RAISERROR('Rol no válido', 16, 1);
+                RETURN;
+            END
+
+        -- Actualizar rol
+        UPDATE Usuario
+        SET rol = @nuevoRol
+        WHERE idUsuario = @idUsuarioModificar;
+
+        SET @cambioExitoso = 1;
+
+        -- Registrar el cambio
+        INSERT INTO LogAcceso (nombreUsuario, exitoso, ipAcceso, motivo)
+        VALUES (
+                   (SELECT nombreUsuario FROM Usuario WHERE idUsuario = @idUsuarioModificar),
+                   1,
+                   NULL,
+                   'Rol cambiado a ' + @nuevoRol + ' por administrador'
+               );
+
+    END TRY
+    BEGIN CATCH
+        SET @cambioExitoso = 0;
+    END CATCH
+END;
+go
+
+CREATE PROCEDURE SP_CerrarSesion
+    @idUsuario INT,
+    @cerradoCorrectamente BIT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SET @cerradoCorrectamente = 0;
+
+    BEGIN TRY
+        UPDATE Usuario
+        SET ultimoAcceso = GETDATE()
+        WHERE idUsuario = @idUsuario;
+
+        SET @cerradoCorrectamente = 1;
+    END TRY
+    BEGIN CATCH
+        SET @cerradoCorrectamente = 0;
+    END CATCH
+END;
+go
+
+-- SP: Consultar precios de un producto
+CREATE PROCEDURE SP_ConsultarPreciosProducto
+    @codigoProducto VARCHAR(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        p.codigoProducto,
+        p.nombreProducto,
+        c.nombreCategoria,
+        m.nombreMarca,
+        p.precioUnidad AS precio_Unitario,
+        p.precioDocena AS precio_Docena_Completa,
+        CAST(p.precioDocena / 12.0 AS DECIMAL(10,2)) AS precio_Unitario_En_Docena,
+        p.precioMayorista AS precio_Mayorista,
+        p.cantidadMinimaMayorista AS cantidad_Minima_Mayorista,
+        -- Calcular ahorros
+        CAST(((p.precioUnidad - (p.precioDocena/12.0)) / p.precioUnidad) * 100 AS DECIMAL(5,2)) AS ahorro_Docena_Porcentaje,
+        CAST(((p.precioUnidad - p.precioMayorista) / p.precioUnidad) * 100 AS DECIMAL(5,2)) AS ahorro_Mayorista_Porcentaje,
+        -- Stock disponible
+        ISNULL(SUM(i.stockActual), 0) AS stockTotal
+    FROM Producto p
+    LEFT JOIN Categoria c ON p.idCategoria = c.idCategoria
+    LEFT JOIN Marca m ON p.idMarca = m.idMarca
+    LEFT JOIN Inventario i ON p.idProducto = i.idProducto
+    WHERE p.codigoProducto = @codigoProducto AND p.estado = 'Activo'
+    GROUP BY 
+        p.codigoProducto, p.nombreProducto, c.nombreCategoria, m.nombreMarca,
+        p.precioUnidad, p.precioDocena, p.precioMayorista, p.cantidadMinimaMayorista;
+END;
+go
+
 CREATE PROCEDURE SP_DesbloquearUsuario
-    @IdUsuarioAdmin INT,
-    @IdUsuarioDesbloquear INT,
-    @Resultado INT OUTPUT,
-    @Mensaje VARCHAR(200) OUTPUT
+    @idUsuarioAdmin INT,
+    @idUsuarioBloqueado INT,
+    @desbloqueado BIT OUTPUT,
+    @sinPermisos BIT OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Verificar que el usuario que ejecuta sea administrador
-    DECLARE @TipoAdmin VARCHAR(20);
-    SELECT @TipoAdmin = t.NOMBRE_TIP
-    FROM USUARIOS_SM u
-    INNER JOIN TIPO_SM t ON u.ID_TIPO = t.ID_TIPO
-    WHERE u.ID_USUARIO = @IdUsuarioAdmin;
-
-    IF @TipoAdmin != 'ADMINISTRADOR'
-    BEGIN
-        SET @Resultado = 0;
-        SET @Mensaje = 'Solo los administradores pueden desbloquear usuarios';
-        RETURN;
-    END
-
-    -- Desbloquear usuario
-    UPDATE USUARIOS_SM
-    SET ID_ESTADO = 1,
-        INTENTOS_FALLIDOS = 0
-    WHERE ID_USUARIO = @IdUsuarioDesbloquear;
-
-    SET @Resultado = 1;
-    SET @Mensaje = 'Usuario desbloqueado exitosamente';
-END
-go
-
--- Procedimiento para listar todas las personas con su contacto y dirección
-CREATE PROCEDURE SP_ListarPersonas
-AS
-BEGIN
-    SET NOCOUNT ON;
+    SET @desbloqueado = 0;
+    SET @sinPermisos = 0;
 
     BEGIN TRY
-        -- Selecciona todos los campos relevantes de las tablas unidas
-        SELECT
-            p.DNI_SM,
-            p.NOMBRE_SM,
-            p.APELLIDO_SM,
-            p.FECHA_NACIMIENTO,
-            p.GENERO,
-            -- Campos de CONTACTO_SM
-            c.NUMERO_TEL,
-            c.WHATSAPP,
-            c.CORREO,
-            -- Campos de DIRECCION_SM
-            d.DIRECCION_COMPLETA,
-            d.DEPARTAMENTO_DIR,
-            d.PROVINCIA_DIR,
-            d.DISTRITO_DIR,
-            d.REFERENCIA
-        FROM
-            PERSONA_SM p
-                -- LEFT JOIN para incluir personas que no tengan contacto o dirección asociados
-                LEFT JOIN CONTACTO_SM c ON p.ID_CONTACTO = c.ID_CONTACTO
-                LEFT JOIN DIRECCION_SM d ON c.ID_DIRECCION = d.ID_DIRECCION;
+        DECLARE @rolAdmin VARCHAR(20);
 
-    END TRY
-    BEGIN CATCH
-        -- Manejo de errores
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
-        DECLARE @ErrorState INT = ERROR_STATE();
+        -- Verificar que quien desbloquea sea administrador
+        SELECT @rolAdmin = rol
+        FROM Usuario
+        WHERE idUsuario = @idUsuarioAdmin;
 
-        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
-    END CATCH
-
-END
-go
-
-CREATE PROCEDURE SP_ListarTipoPorId
-@IdTipo INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT ID_TIPO, NOMBRE_TIP, CATEGORIA_TIPO, ACTIVO
-    FROM TIPO_SM
-    WHERE ID_TIPO = @IdTipo;
-END
-go
-
-CREATE PROCEDURE SP_ListarTipos
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT ID_TIPO, NOMBRE_TIP, CATEGORIA_TIPO, ACTIVO
-    FROM TIPO_SM
-    ORDER BY NOMBRE_TIP; -- O el orden que desees
-END
-go
-
-CREATE PROCEDURE SP_ListarTiposActivos
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT ID_TIPO, NOMBRE_TIP, CATEGORIA_TIPO, ACTIVO
-    FROM TIPO_SM
-    WHERE ACTIVO = 1
-    ORDER BY NOMBRE_TIP;
-END
-go
-
--- Procedimiento para listar todos los usuarios con su información de persona, estado y tipo
-CREATE PROCEDURE SP_ListarUsuarios
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    BEGIN TRY
-        -- Selecciona todos los campos relevantes de las tablas unidas
-        SELECT
-            -- Campos de USUARIOS_SM
-            u.ID_USUARIO,
-            u.NOMBRE_US,
-            u.CONTRASEÑA_US,
-            u.DNI_SM,
-            u.FECHA_REGISTRO_US,
-            u.ULTIMO_INGRESO,
-            u.INTENTOS_FALLIDOS,
-            -- Campos de ESTADO_SM
-            e.DESCRIP_ESTA,
-            e.ACTIVO,
-            -- Campos de TIPO_SM
-            t.NOMBRE_TIP,
-            t.CATEGORIA_TIPO,
-            t.ACTIVO,
-            -- Campos de PERSONA_SM (heredados por Usuario)
-            p.NOMBRE_SM,
-            p.APELLIDO_SM,
-            p.FECHA_NACIMIENTO,
-            p.GENERO
-        -- NOTA: No incluye contacto aquí, se haría en otro JOIN si es necesario
-        -- o se manejaría en una consulta separada si la estructura lo requiere.
-        -- Si contacto es parte de Persona, se debe incluir como en SP_ListarPersonas
-        -- Suponiendo que ID_CONTACTO en PERSONA_SM apunta a CONTACTO_SM
-        -- , c.NUMERO_TEL, c.WHATSAPP, c.CORREO, d.DIRECCION_COMPLETA, ...
-        FROM
-            USUARIOS_SM u
-                INNER JOIN PERSONA_SM p ON u.DNI_SM = p.DNI_SM
-                INNER JOIN ESTADO_SM e ON u.ID_ESTADO = e.ID_ESTADO
-                INNER JOIN TIPO_SM t ON u.ID_TIPO = t.ID_TIPO
-        -- Opcional: LEFT JOIN con CONTACTO_SM y DIRECCION_SM si la info de contacto
-        -- está ligada a la persona y quieres incluirla aquí también.
-        -- LEFT JOIN CONTACTO_SM c ON p.ID_CONTACTO = c.ID_CONTACTO_SM
-        -- LEFT JOIN DIRECCION_SM d ON c.ID_DIRECCION = d.ID_DIRECCION_SM;
-
-    END TRY
-    BEGIN CATCH
-        -- Manejo de errores
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
-        DECLARE @ErrorState INT = ERROR_STATE();
-
-        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
-    END CATCH
-
-END
-go
-
--- SP para modificar usuario (solo administrador)
-CREATE PROCEDURE SP_ModificarUsuario
-    @IdUsuario INT,
-    @NuevoNombreUsuario VARCHAR(30) = NULL,
-    @NuevaContrasena VARCHAR(100) = NULL,
-    @NuevoIdTipo INT = NULL,
-    @NuevoIdEstado INT = NULL,
-    @IdUsuarioAdmin INT,
-    @Resultado INT OUTPUT,
-    @Mensaje VARCHAR(200) OUTPUT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    BEGIN TRY
-        -- Verificar que el usuario que ejecuta sea administrador
-        DECLARE @TipoAdmin VARCHAR(20);
-        SELECT @TipoAdmin = t.NOMBRE_TIP
-        FROM USUARIOS_SM u
-        INNER JOIN TIPO_SM t ON u.ID_TIPO = t.ID_TIPO
-        WHERE u.ID_USUARIO = @IdUsuarioAdmin;
-
-        IF @TipoAdmin != 'ADMINISTRADOR'
-        BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'Solo los administradores pueden modificar usuarios';
-            RETURN;
-        END
-
-        -- Verificar que el usuario a modificar existe
-        IF NOT EXISTS (SELECT 1 FROM USUARIOS_SM WHERE ID_USUARIO = @IdUsuario)
-        BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'El usuario no existe';
-            RETURN;
-        END
-
-        -- Verificar nombre de usuario único si se va a cambiar
-        IF @NuevoNombreUsuario IS NOT NULL
-        BEGIN
-            IF EXISTS (SELECT 1 FROM USUARIOS_SM WHERE NOMBRE_US = @NuevoNombreUsuario AND ID_USUARIO != @IdUsuario)
+        IF @rolAdmin != 'Administrador'
             BEGIN
-                SET @Resultado = 0;
-                SET @Mensaje = 'El nombre de usuario ya existe';
-                RETURN;
-            END
-        END
-
-        -- Actualizar campos no nulos
-        UPDATE USUARIOS_SM
-        SET
-            NOMBRE_US = ISNULL(@NuevoNombreUsuario, NOMBRE_US),
-            CONTRASEÑA_US = ISNULL(@NuevaContrasena, CONTRASEÑA_US),
-            ID_TIPO = ISNULL(@NuevoIdTipo, ID_TIPO),
-            ID_ESTADO = ISNULL(@NuevoIdEstado, ID_ESTADO)
-        WHERE ID_USUARIO = @IdUsuario;
-
-        SET @Resultado = 1;
-        SET @Mensaje = 'Usuario modificado exitosamente';
-
-    END TRY
-    BEGIN CATCH
-        SET @Resultado = 0;
-        SET @Mensaje = 'Error al modificar usuario: ' + ERROR_MESSAGE();
-    END CATCH
-END
-go
-
--- SP para obtener próximo código disponible
-CREATE PROCEDURE SP_ObtenerProximoCodigo
-    @TipoCodigo VARCHAR(20), -- 'PRODUCTO', 'CLIENTE', 'FACTURA'
-    @ProximoCodigo VARCHAR(20) OUTPUT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    DECLARE @Contador INT;
-
-    IF @TipoCodigo = 'PRODUCTO'
-    BEGIN
-        SELECT @Contador = ISNULL(MAX(CAST(SUBSTRING(COD_PRODUCTO, 4, 10) AS INT)), 0) + 1
-        FROM PRODUCTO_SM
-        WHERE COD_PRODUCTO LIKE 'PRO%' AND ISNUMERIC(SUBSTRING(COD_PRODUCTO, 4, 10)) = 1;
-
-        SET @ProximoCodigo = 'PRO' + RIGHT('000000' + CAST(@Contador AS VARCHAR), 6);
-    END
-    ELSE IF @TipoCodigo = 'CLIENTE'
-    BEGIN
-        SELECT @Contador = ISNULL(MAX(CAST(SUBSTRING(CODIGO_CLI_SM, 4, 10) AS INT)), 0) + 1
-        FROM CLIENTE_SM
-        WHERE CODIGO_CLI_SM LIKE 'CLI%' AND ISNUMERIC(SUBSTRING(CODIGO_CLI_SM, 4, 10)) = 1;
-
-        SET @ProximoCodigo = 'CLI' + RIGHT('0000' + CAST(@Contador AS VARCHAR), 4);
-    END
-    ELSE IF @TipoCodigo = 'FACTURA'
-    BEGIN
-        SELECT @Contador = ISNULL(MAX(CAST(SUBSTRING(COD_FACTURA, 2, 10) AS INT)), 0) + 1
-        FROM VENTA_CABECERA_SM
-        WHERE COD_FACTURA LIKE 'V%' AND ISNUMERIC(SUBSTRING(COD_FACTURA, 2, 10)) = 1;
-
-        SET @ProximoCodigo = 'V' + RIGHT('000000' + CAST(@Contador AS VARCHAR), 6);
-    END
-    ELSE
-    BEGIN
-        SET @ProximoCodigo = 'ERROR: Tipo de código no válido';
-    END
-END
-go
-
--- SP para realizar venta completa
-CREATE PROCEDURE SP_RealizarVenta
-    @IdCliente VARCHAR(20),
-    @IdUsuario INT,
-    @MetodoPago VARCHAR(20),
-    @Observaciones VARCHAR(200) = NULL,
-    @DetalleVenta NVARCHAR(MAX), -- JSON con detalles de venta
-    @Resultado INT OUTPUT,
-    @Mensaje VARCHAR(200) OUTPUT,
-    @CodigoFactura VARCHAR(20) OUTPUT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    BEGIN TRY
-        BEGIN TRANSACTION;
-
-        -- Generar código de factura
-        DECLARE @ContadorVentas INT;
-        SELECT @ContadorVentas = ISNULL(MAX(CAST(SUBSTRING(COD_FACTURA, 2, 10) AS INT)), 0) + 1
-        FROM VENTA_CABECERA_SM
-        WHERE COD_FACTURA LIKE 'V%';
-
-        SET @CodigoFactura = 'V' + RIGHT('000000' + CAST(@ContadorVentas AS VARCHAR), 6);
-
-        -- Variables para totales
-        DECLARE @Subtotal DECIMAL(10,2) = 0;
-        DECLARE @IgvTotal DECIMAL(10,2) = 0;
-        DECLARE @DescuentoTotal DECIMAL(10,2) = 0;
-        DECLARE @TotalVenta DECIMAL(10,2) = 0;
-
-        -- Crear tabla temporal para procesar detalles
-        CREATE TABLE #DetalleTemp (
-            CodigoProducto VARCHAR(20),
-            Cantidad INT,
-            PrecioUnitario DECIMAL(10,2),
-            DescuentoUnitario DECIMAL(10,2),
-            CodigoAlmacen VARCHAR(10)
-        );
-
-        -- Parsear JSON de detalles (simplificado, en producción usar JSON functions)
-        -- Por ahora asumimos que @DetalleVenta viene como string separado por |
-        -- Formato: COD_PRODUCTO,CANTIDAD,PRECIO,DESCUENTO,ALMACEN|...
-
-        DECLARE @DetalleItem VARCHAR(200);
-        DECLARE @Pos INT = 1;
-
-        WHILE @Pos <= LEN(@DetalleVenta)
-        BEGIN
-            SET @DetalleItem = SUBSTRING(@DetalleVenta, @Pos, CHARINDEX('|', @DetalleVenta + '|', @Pos) - @Pos);
-
-            DECLARE @CodProd VARCHAR(20) = SUBSTRING(@DetalleItem, 1, CHARINDEX(',', @DetalleItem) - 1);
-            SET @DetalleItem = SUBSTRING(@DetalleItem, CHARINDEX(',', @DetalleItem) + 1, LEN(@DetalleItem));
-
-            DECLARE @Cant INT = CAST(SUBSTRING(@DetalleItem, 1, CHARINDEX(',', @DetalleItem) - 1) AS INT);
-            SET @DetalleItem = SUBSTRING(@DetalleItem, CHARINDEX(',', @DetalleItem) + 1, LEN(@DetalleItem));
-
-            DECLARE @Precio DECIMAL(10,2) = CAST(SUBSTRING(@DetalleItem, 1, CHARINDEX(',', @DetalleItem) - 1) AS DECIMAL(10,2));
-            SET @DetalleItem = SUBSTRING(@DetalleItem, CHARINDEX(',', @DetalleItem) + 1, LEN(@DetalleItem));
-
-            DECLARE @Desc DECIMAL(10,2) = CAST(SUBSTRING(@DetalleItem, 1, CHARINDEX(',', @DetalleItem) - 1) AS DECIMAL(10,2));
-            DECLARE @Almacen VARCHAR(10) = SUBSTRING(@DetalleItem, CHARINDEX(',', @DetalleItem) + 1, LEN(@DetalleItem));
-
-            -- Verificar stock disponible
-            DECLARE @StockDisponible INT;
-            SELECT @StockDisponible = STOCK_ACTUAL
-            FROM INVENTARIO_SM
-            WHERE COD_PRODUCTO = @CodProd AND COD_ALMACEN = @Almacen;
-
-            IF @StockDisponible < @Cant
-            BEGIN
-                SET @Resultado = 0;
-                SET @Mensaje = 'Stock insuficiente para producto ' + @CodProd + ' en almacén ' + @Almacen;
-                ROLLBACK TRANSACTION;
+                SET @sinPermisos = 1;
                 RETURN;
             END
 
-            -- Insertar en tabla temporal
-            INSERT INTO #DetalleTemp VALUES (@CodProd, @Cant, @Precio, @Desc, @Almacen);
+        -- Desbloquear usuario
+        UPDATE Usuario
+        SET bloqueadoHasta = NULL,
+            intentosFallidos = 0
+        WHERE idUsuario = @idUsuarioBloqueado;
 
-            SET @Pos = CHARINDEX('|', @DetalleVenta, @Pos) + 1;
-            IF @Pos = 1 BREAK;
-        END
+        SET @desbloqueado = 1;
 
-        -- Insertar cabecera (inicialmente con totales en 0)
-        INSERT INTO VENTA_CABECERA_SM (
-            COD_FACTURA, ID_CLIENTE, ID_USUARIO, SUBTOTAL, IGV_TOTAL,
-            DESCUENTO_TOTAL, TOTAL_VENTA, METODO_PAGO, OBSERVACIONES
-        )
+        INSERT INTO LogAcceso (nombreUsuario, exitoso, ipAcceso, motivo)
         VALUES (
-            @CodigoFactura, @IdCliente, @IdUsuario, 0, 0, 0, 0, @MetodoPago, @Observaciones
-        );
-
-        -- Procesar cada detalle
-        DECLARE detalle_cursor CURSOR FOR
-        SELECT CodigoProducto, Cantidad, PrecioUnitario, DescuentoUnitario, CodigoAlmacen
-        FROM #DetalleTemp;
-
-        OPEN detalle_cursor;
-
-        DECLARE @CodProducto VARCHAR(20), @Cantidad INT, @PrecioUnit DECIMAL(10,2),
-                @DescuentoUnit DECIMAL(10,2), @CodAlmacen VARCHAR(10);
-
-        FETCH NEXT FROM detalle_cursor INTO @CodProducto, @Cantidad, @PrecioUnit, @DescuentoUnit, @CodAlmacen;
-
-        WHILE @@FETCH_STATUS = 0
-        BEGIN
-            DECLARE @SubtotalDetalle DECIMAL(10,2) = (@Cantidad * @PrecioUnit) - (@Cantidad * @DescuentoUnit);
-
-            -- Insertar detalle
-            INSERT INTO VENTA_DETALLE_SM (
-                COD_FACTURA, COD_PRODUCTO, CANTIDAD, PRECIO_UNITARIO,
-                DESCUENTO_UNITARIO, SUBTOTAL_DETALLE, COD_ALMACEN
-            )
-            VALUES (
-                @CodigoFactura, @CodProducto, @Cantidad, @PrecioUnit,
-                @DescuentoUnit, @SubtotalDetalle, @CodAlmacen
-            );
-
-            -- Actualizar stock
-            EXEC SP_ActualizarStock
-                @CodigoProducto = @CodProducto,
-                @CodigoAlmacen = @CodAlmacen,
-                @TipoMovimiento = 'SALIDA',
-                @Cantidad = @Cantidad,
-                @IdUsuario = @IdUsuario,
-                @Referencia = @CodigoFactura,
-                @Observaciones = 'Venta',
-                @Resultado = @Resultado OUTPUT,
-                @Mensaje = @Mensaje OUTPUT;
-
-            IF @Resultado = 0
-            BEGIN
-                ROLLBACK TRANSACTION;
-                RETURN;
-            END
-
-            -- Acumular totales
-            SET @Subtotal = @Subtotal + @SubtotalDetalle;
-            SET @DescuentoTotal = @DescuentoTotal + (@Cantidad * @DescuentoUnit);
-
-            FETCH NEXT FROM detalle_cursor INTO @CodProducto, @Cantidad, @PrecioUnit, @DescuentoUnit, @CodAlmacen;
-        END
-
-        CLOSE detalle_cursor;
-        DEALLOCATE detalle_cursor;
-
-        -- Calcular IGV (18%)
-        SET @IgvTotal = @Subtotal * 0.18;
-        SET @TotalVenta = @Subtotal + @IgvTotal;
-
-        -- Actualizar totales en cabecera
-        UPDATE VENTA_CABECERA_SM
-        SET SUBTOTAL = @Subtotal,
-            IGV_TOTAL = @IgvTotal,
-            DESCUENTO_TOTAL = @DescuentoTotal,
-            TOTAL_VENTA = @TotalVenta
-        WHERE COD_FACTURA = @CodigoFactura;
-
-        DROP TABLE #DetalleTemp;
-        COMMIT TRANSACTION;
-
-        SET @Resultado = 1;
-        SET @Mensaje = 'Venta realizada exitosamente';
+                   (SELECT nombreUsuario FROM Usuario WHERE idUsuario = @idUsuarioBloqueado),
+                   1,
+                   NULL,
+                   'Desbloqueado por administrador'
+               );
 
     END TRY
     BEGIN CATCH
-        IF CURSOR_STATUS('global', 'detalle_cursor') >= 0
-        BEGIN
-            CLOSE detalle_cursor;
-            DEALLOCATE detalle_cursor;
-        END
-
-        IF OBJECT_ID('tempdb..#DetalleTemp') IS NOT NULL
-            DROP TABLE #DetalleTemp;
-
-        ROLLBACK TRANSACTION;
-        SET @Resultado = 0;
-        SET @Mensaje = 'Error al realizar venta: ' + ERROR_MESSAGE();
+        SET @desbloqueado = 0;
     END CATCH
-END
+END;
 go
 
--- SP para registrar cliente
-CREATE PROCEDURE SP_RegistrarCliente
-    @Dni VARCHAR(12),
-    @TipoCliente VARCHAR(20) = 'REGULAR',
-    @CodigoCliente VARCHAR(20) = NULL,
-    @DescuentoEspecial DECIMAL(5,2) = 0,
-    @Resultado INT OUTPUT,
-    @Mensaje VARCHAR(200) OUTPUT,
-    @IdCliente VARCHAR(20) OUTPUT
+-- ============================================================
+-- SP: Eliminar usuario (eliminación lógica)
+-- ============================================================
+CREATE   PROCEDURE SP_EliminarUsuario
+    @idUsuarioAdmin INT,
+    @idUsuarioEliminar INT,
+    @eliminado BIT OUTPUT,
+    @sinPermisos BIT OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
+    SET @eliminado = 0;
+    SET @sinPermisos = 0;
+
     BEGIN TRY
-        -- Verificar que el DNI existe en PERSONA_SM
-        IF NOT EXISTS (SELECT 1 FROM PERSONA_SM WHERE DNI_SM = @Dni)
-        BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'El DNI no está registrado como persona';
-            RETURN;
-        END
+        DECLARE @rolAdmin VARCHAR(20);
 
-        -- Verificar que no sea ya cliente
-        IF EXISTS (SELECT 1 FROM CLIENTE_SM WHERE DNI_SM = @Dni)
-        BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'Esta persona ya está registrada como cliente';
-            RETURN;
-        END
+        SELECT @rolAdmin = rol
+        FROM Usuario
+        WHERE idUsuario = @idUsuarioAdmin;
 
-        -- Generar ID de cliente automático si no se proporciona
-        IF @CodigoCliente IS NULL
-        BEGIN
-            DECLARE @ContadorClientes INT;
-            SELECT @ContadorClientes = ISNULL(MAX(CAST(SUBSTRING(CODIGO_CLI_SM, 4, 10) AS INT)), 0) + 1
-            FROM CLIENTE_SM
-            WHERE CODIGO_CLI_SM LIKE 'CLI%';
+        IF @rolAdmin != 'Administrador'
+            BEGIN
+                SET @sinPermisos = 1;
+                RETURN;
+            END
 
-            SET @CodigoCliente = 'CLI' + RIGHT('0000' + CAST(@ContadorClientes AS VARCHAR), 4);
-        END
+        -- No permitir eliminar al propio administrador
+        IF @idUsuarioAdmin = @idUsuarioEliminar
+            BEGIN
+                RAISERROR('No puede eliminarse a sí mismo', 16, 1);
+                RETURN;
+            END
 
-        -- Generar ID de cliente
-        SET @IdCliente = 'C' + REPLACE(@Dni, ' ', '') + FORMAT(GETDATE(), 'yyyyMM');
+        -- Eliminación lógica (cambiar estado a Inactivo)
+        UPDATE Usuario
+        SET estado = 'Inactivo',
+            bloqueadoHasta = GETDATE() -- Marcar como bloqueado permanentemente
+        WHERE idUsuario = @idUsuarioEliminar;
 
-        -- Obtener ID de tipo cliente
-        DECLARE @IdTipoCliente INT;
-        SELECT @IdTipoCliente = ID_TIPO
-        FROM TIPO_SM
-        WHERE NOMBRE_TIP = @TipoCliente AND CATEGORIA_TIPO = 'CLIENTE';
+        SET @eliminado = 1;
 
-        -- Insertar cliente
-        INSERT INTO CLIENTE_SM (ID_CLIENTE, DNI_SM, CODIGO_CLI_SM, TIPO_CLIENTE_SM, ID_TIPO, ID_ESTADO, DESCUENTO_ESPECIAL)
-        VALUES (@IdCliente, @Dni, @CodigoCliente, @TipoCliente, @IdTipoCliente, 1, @DescuentoEspecial);
-
-        SET @Resultado = 1;
-        SET @Mensaje = 'Cliente registrado exitosamente';
+        INSERT INTO LogAcceso (nombreUsuario, exitoso, ipAcceso, motivo)
+        VALUES (
+                   (SELECT nombreUsuario FROM Usuario WHERE idUsuario = @idUsuarioEliminar),
+                   0,
+                   NULL,
+                   'Usuario eliminado (inactivado) por administrador'
+               );
 
     END TRY
     BEGIN CATCH
-        SET @Resultado = 0;
-        SET @Mensaje = 'Error al registrar cliente: ' + ERROR_MESSAGE();
+        SET @eliminado = 0;
     END CATCH
-END
+END;
 go
 
--- SP para registrar persona con validación de DNI único
-CREATE PROCEDURE SP_RegistrarPersona
-    @Dni VARCHAR(12),
-    @Nombre VARCHAR(60),
-    @Apellido VARCHAR(60),
-    @FechaNacimiento DATE = NULL,
-    @Genero CHAR(1) = NULL,
-    @Telefono VARCHAR(15) = NULL,
-    @Whatsapp VARCHAR(15) = NULL,
-    @Correo VARCHAR(50) = NULL,
-    @DireccionCompleta VARCHAR(200) = NULL,
-    @Departamento VARCHAR(30) = NULL,
-    @Provincia VARCHAR(30) = NULL,
-    @Distrito VARCHAR(40) = NULL,
-    @Referencia VARCHAR(100) = NULL,
-    @Resultado INT OUTPUT,
-    @Mensaje VARCHAR(200) OUTPUT
+-- ============================================================
+-- SP: Listar todos los usuarios con información resumida
+-- ============================================================
+CREATE   PROCEDURE SP_ListarUsuarios
+    @rol VARCHAR(20) = NULL,
+    @estado VARCHAR(15) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        u.idUsuario,
+        u.nombreUsuario,
+        u.nombreCompleto,
+        u.rol,
+        u.telefono,
+        u.email,
+        u.ultimoAcceso,
+        u.intentosFallidos,
+        u.bloqueadoHasta,
+        u.fechaCreacion,
+        u.estado,
+        CASE
+            WHEN u.bloqueadoHasta IS NOT NULL AND u.bloqueadoHasta > GETDATE()
+                THEN 'Bloqueado'
+            WHEN u.estado = 'Inactivo'
+                THEN 'Inactivo'
+            ELSE 'Activo'
+            END AS estadoActual,
+        (SELECT COUNT(*) FROM LogAcceso WHERE nombreUsuario = u.nombreUsuario AND exitoso = 1) AS totalAccesos
+    FROM Usuario u
+    WHERE (@rol IS NULL OR u.rol = @rol)
+      AND (@estado IS NULL OR u.estado = @estado)
+    ORDER BY u.fechaCreacion DESC;
+END;
+go
+
+-- ============================================================
+-- SP: Obtener estadísticas de acceso de un usuario
+-- ============================================================
+CREATE   PROCEDURE SP_ObtenerEstadisticasAcceso
+@idUsuario INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @nombreUsuario VARCHAR(50);
+
+    SELECT @nombreUsuario = nombreUsuario
+    FROM Usuario
+    WHERE idUsuario = @idUsuario;
+
+    -- Resumen de accesos
+    SELECT
+        COUNT(*) AS totalIntentos,
+        SUM(CASE WHEN exitoso = 1 THEN 1 ELSE 0 END) AS accesosExitosos,
+        SUM(CASE WHEN exitoso = 0 THEN 1 ELSE 0 END) AS accesosFallidos,
+        MAX(fechaIntento) AS ultimoIntento,
+        MIN(fechaIntento) AS primerIntento
+    FROM LogAcceso
+    WHERE nombreUsuario = @nombreUsuario;
+
+    -- Últimos 10 accesos
+    SELECT TOP 10
+        fechaIntento,
+        exitoso,
+        ipAcceso,
+        motivo
+    FROM LogAcceso
+    WHERE nombreUsuario = @nombreUsuario
+    ORDER BY fechaIntento DESC;
+END;
+go
+
+CREATE PROCEDURE SP_ObtenerInfoUsuario
+@idUsuario INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        idUsuario,
+        nombreUsuario,
+        nombreCompleto,
+        rol,
+        telefono,
+        email,
+        ultimoAcceso,
+        estado,
+        CASE
+            WHEN bloqueadoHasta IS NOT NULL AND bloqueadoHasta > GETDATE() THEN 1
+            ELSE 0
+            END AS estaBloqueado,
+        CASE
+            WHEN bloqueadoHasta IS NOT NULL AND bloqueadoHasta > GETDATE()
+                THEN DATEDIFF(MINUTE, GETDATE(), bloqueadoHasta)
+            ELSE 0
+            END AS minutosRestantesBloq,
+        intentosFallidos,
+        fechaCreacion
+    FROM Usuario
+    WHERE idUsuario = @idUsuario;
+END;
+go
+
+-- SP: Productos con stock bajo
+CREATE PROCEDURE SP_ProductosStockBajo
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        p.codigoProducto,
+        p.nombreProducto,
+        c.nombreCategoria,
+        m.nombreMarca,
+        ISNULL(SUM(i.stockActual), 0) AS stockTotal,
+        p.stockMinimo,
+        ISNULL(SUM(CASE WHEN i.idAlmacen = 251 THEN i.stockActual ELSE 0 END), 0) AS stock251,
+        ISNULL(SUM(CASE WHEN i.idAlmacen = 252 THEN i.stockActual ELSE 0 END), 0) AS stock252,
+        CASE 
+            WHEN ISNULL(SUM(i.stockActual), 0) = 0 THEN 'SIN STOCK'
+            WHEN ISNULL(SUM(i.stockActual), 0) <= p.stockMinimo THEN 'CRÍTICO'
+            ELSE 'BAJO'
+        END AS alerta
+    FROM Producto p
+    LEFT JOIN Inventario i ON p.idProducto = i.idProducto
+    LEFT JOIN Categoria c ON p.idCategoria = c.idCategoria
+    LEFT JOIN Marca m ON p.idMarca = m.idMarca
+    WHERE p.estado = 'Activo'
+    GROUP BY 
+        p.idProducto, p.codigoProducto, p.nombreProducto,
+        c.nombreCategoria, m.nombreMarca, p.stockMinimo
+    HAVING ISNULL(SUM(i.stockActual), 0) <= (p.stockMinimo * 2)
+    ORDER BY stockTotal ASC, p.nombreProducto;
+END;
+go
+
+-- SP: Registrar nueva venta
+CREATE PROCEDURE SP_RegistrarVenta
+    @idCliente INT,
+    @idUsuario INT,
+    @idMedioPago INT,
+    @modalidadVenta VARCHAR(20),
+    @observaciones VARCHAR(500) = NULL,
+    @numeroVenta VARCHAR(20) OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
     BEGIN TRY
         BEGIN TRANSACTION;
-
-        -- Validar que el DNI no exista
-        IF EXISTS (SELECT 1 FROM PERSONA_SM WHERE DNI_SM = @Dni)
-        BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'El DNI ya está registrado';
-            ROLLBACK TRANSACTION;
-            RETURN;
-        END
-
-        -- Variables para IDs
-        DECLARE @IdDireccion INT = NULL;
-        DECLARE @IdContacto INT = NULL;
-
-        -- Insertar dirección si se proporciona
-        IF @DireccionCompleta IS NOT NULL
-        BEGIN
-            INSERT INTO DIRECCION_SM (DIRECCION_COMPLETA, DEPARTAMENTO_DIR, PROVINCIA_DIR, DISTRITO_DIR, REFERENCIA)
-            VALUES (@DireccionCompleta, @Departamento, @Provincia, @Distrito, @Referencia);
-            SET @IdDireccion = SCOPE_IDENTITY();
-        END
-
-        -- Insertar contacto si se proporciona información
-        IF @Telefono IS NOT NULL OR @Correo IS NOT NULL OR @Whatsapp IS NOT NULL
-        BEGIN
-            INSERT INTO CONTACTO_SM (NUMERO_TEL, WHATSAPP, CORREO, ID_DIRECCION)
-            VALUES (@Telefono, @Whatsapp, @Correo, @IdDireccion);
-            SET @IdContacto = SCOPE_IDENTITY();
-        END
-
-        -- Insertar persona
-        INSERT INTO PERSONA_SM (DNI_SM, NOMBRE_SM, APELLIDO_SM, FECHA_NACIMIENTO, GENERO, ID_CONTACTO)
-        VALUES (@Dni, @Nombre, @Apellido, @FechaNacimiento, @Genero, @IdContacto);
-
+        
+        -- Generar número de venta
+        DECLARE @ultimoNumero INT;
+        SELECT @ultimoNumero = ISNULL(MAX(CAST(SUBSTRING(numeroVenta, 2, LEN(numeroVenta)) AS INT)), 0)
+        FROM Venta;
+        
+        SET @numeroVenta = 'V' + RIGHT('000000' + CAST(@ultimoNumero + 1 AS VARCHAR), 6);
+        
+        -- Insertar venta
+        INSERT INTO Venta (numeroVenta, idCliente, idUsuario, idMedioPago, modalidadVenta, observaciones)
+        VALUES (@numeroVenta, @idCliente, @idUsuario, @idMedioPago, @modalidadVenta, @observaciones);
+        
         COMMIT TRANSACTION;
-        SET @Resultado = 1;
-        SET @Mensaje = 'Persona registrada exitosamente';
+        
+        SELECT @numeroVenta AS numeroVenta, SCOPE_IDENTITY() AS idVenta;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+go
+
+-- SP: Reporte de ventas por período
+CREATE PROCEDURE SP_ReporteVentas
+    @fechaInicio DATE,
+    @fechaFin DATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        CAST(v.fechaVenta AS DATE) AS fecha,
+        COUNT(v.idVenta) AS numeroVentas,
+        SUM(v.subtotal) AS subtotal,
+        SUM(v.descuentoTotal) AS descuentos,
+        SUM(v.igv) AS igv,
+        SUM(v.total) AS total,
+        -- Por medio de pago
+        SUM(CASE WHEN mp.nombreMedio = 'Efectivo' THEN v.total ELSE 0 END) AS totalEfectivo,
+        SUM(CASE WHEN mp.nombreMedio = 'Yape' THEN v.total ELSE 0 END) AS totalYape,
+        SUM(CASE WHEN mp.nombreMedio = 'Plin' THEN v.total ELSE 0 END) AS totalPlin,
+        SUM(CASE WHEN mp.nombreMedio = 'Transferencia Bancaria' THEN v.total ELSE 0 END) AS totalTransferencia,
+        -- Por tipo de cliente
+        SUM(CASE WHEN c.tipoCliente = 'Mayorista' THEN v.total ELSE 0 END) AS totalMayorista,
+        SUM(CASE WHEN c.tipoCliente = 'Minorista' THEN v.total ELSE 0 END) AS totalMinorista,
+        SUM(CASE WHEN c.tipoCliente = 'Eventual' THEN v.total ELSE 0 END) AS totalEventual
+    FROM Venta v
+    INNER JOIN Cliente c ON v.idCliente = c.idCliente
+    INNER JOIN MedioPago mp ON v.idMedioPago = mp.idMedioPago
+    WHERE CAST(v.fechaVenta AS DATE) BETWEEN @fechaInicio AND @fechaFin
+        AND v.estado = 'Completada'
+    GROUP BY CAST(v.fechaVenta AS DATE)
+    ORDER BY fecha DESC;
+END;
+go
+
+-- ============================================================
+-- SP: Resetear intentos fallidos manualmente
+-- ============================================================
+CREATE   PROCEDURE SP_ResetearIntentosFallidos
+    @idUsuarioAdmin INT,
+    @idUsuarioResetear INT,
+    @reseteado BIT OUTPUT,
+    @sinPermisos BIT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @reseteado = 0;
+    SET @sinPermisos = 0;
+
+    BEGIN TRY
+        DECLARE @rolAdmin VARCHAR(20);
+
+        SELECT @rolAdmin = rol
+        FROM Usuario
+        WHERE idUsuario = @idUsuarioAdmin;
+
+        IF @rolAdmin != 'Administrador'
+            BEGIN
+                SET @sinPermisos = 1;
+                RETURN;
+            END
+
+        UPDATE Usuario
+        SET intentosFallidos = 0,
+            bloqueadoHasta = NULL
+        WHERE idUsuario = @idUsuarioResetear;
+
+        SET @reseteado = 1;
+
+        INSERT INTO LogAcceso (nombreUsuario, exitoso, ipAcceso, motivo)
+        VALUES (
+                   (SELECT nombreUsuario FROM Usuario WHERE idUsuario = @idUsuarioResetear),
+                   1,
+                   NULL,
+                   'Intentos fallidos reseteados por administrador'
+               );
 
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;
-        SET @Resultado = 0;
-        SET @Mensaje = 'Error al registrar persona: ' + ERROR_MESSAGE();
+        SET @reseteado = 0;
     END CATCH
-END
+END;
 go
 
--- SP para registrar proveedor
-CREATE PROCEDURE SP_RegistrarProveedor
-    @RazonSocial VARCHAR(100),
-    @Ruc VARCHAR(11),
-    @DniContacto VARCHAR(12) = NULL,
-    @Banco VARCHAR(50) = NULL,
-    @NumeroCuenta VARCHAR(50) = NULL,
-    @IdTipo INT,
-    @Resultado INT OUTPUT,
-    @Mensaje VARCHAR(200) OUTPUT,
-    @CodProveedor INT OUTPUT
+-- SP: Transferir stock entre almacenes
+CREATE PROCEDURE SP_TransferirStock
+    @idProducto INT,
+    @idAlmacenOrigen INT,
+    @idAlmacenDestino INT,
+    @cantidad INT,
+    @idUsuario INT,
+    @motivo VARCHAR(200) = 'Transferencia entre almacenes'
 AS
 BEGIN
     SET NOCOUNT ON;
     BEGIN TRY
-        -- Verificar que el RUC no exista
-        IF EXISTS (SELECT 1 FROM PROVEEDOR_SM WHERE RUC_PROV = @Ruc)
+        BEGIN TRANSACTION;
+        
+        -- Verificar stock origen
+        DECLARE @stockOrigen INT;
+        SELECT @stockOrigen = stockActual 
+        FROM Inventario 
+        WHERE idProducto = @idProducto AND idAlmacen = @idAlmacenOrigen;
+        
+        IF @stockOrigen < @cantidad
         BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'El RUC ya está registrado';
+            RAISERROR('Stock insuficiente en almacén origen', 16, 1);
             RETURN;
         END
-
-        -- Verificar DNI de contacto si se proporciona
-        IF @DniContacto IS NOT NULL AND NOT EXISTS (SELECT 1 FROM PERSONA_SM WHERE DNI_SM = @DniContacto)
-        BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'El DNI de contacto no está registrado como persona';
-            RETURN;
-        END
-
-        -- Insertar proveedor
-        INSERT INTO PROVEEDOR_SM (RAZON_SOCIAL, RUC_PROV, DNI_CONTACTO, BANCO_PROV, NUMERO_CUENTA, ID_ESTADO, ID_TIPO)
-        VALUES (@RazonSocial, @Ruc, @DniContacto, @Banco, @NumeroCuenta, 1, @IdTipo);
-
-        SET @CodProveedor = SCOPE_IDENTITY();
-        SET @Resultado = 1;
-        SET @Mensaje = 'Proveedor registrado exitosamente';
-
+        
+        -- Descontar del origen
+        UPDATE Inventario
+        SET stockActual = stockActual - @cantidad,
+            ultimaActualizacion = GETDATE()
+        WHERE idProducto = @idProducto AND idAlmacen = @idAlmacenOrigen;
+        
+        -- Incrementar en destino
+        UPDATE Inventario
+        SET stockActual = stockActual + @cantidad,
+            ultimaActualizacion = GETDATE()
+        WHERE idProducto = @idProducto AND idAlmacen = @idAlmacenDestino;
+        
+        -- Registrar movimientos
+        INSERT INTO MovimientoInventario (idProducto, idAlmacen, tipoMovimiento, cantidad, stockAnterior, stockNuevo, motivo, idUsuario)
+        VALUES 
+        (@idProducto, @idAlmacenOrigen, 'Transferencia', @cantidad, @stockOrigen, @stockOrigen - @cantidad, @motivo + ' (Salida)', @idUsuario),
+        (@idProducto, @idAlmacenDestino, 'Transferencia', @cantidad, 
+         (SELECT stockActual - @cantidad FROM Inventario WHERE idProducto = @idProducto AND idAlmacen = @idAlmacenDestino),
+         (SELECT stockActual FROM Inventario WHERE idProducto = @idProducto AND idAlmacen = @idAlmacenDestino),
+         @motivo + ' (Entrada)', @idUsuario);
+        
+        COMMIT TRANSACTION;
+        
+        SELECT 'Transferencia exitosa' AS mensaje;
     END TRY
     BEGIN CATCH
-        SET @Resultado = 0;
-        SET @Mensaje = 'Error al registrar proveedor: ' + ERROR_MESSAGE();
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        THROW;
     END CATCH
-END
-go
-
--- SP para registrar usuario (un DNI = un usuario)
-CREATE PROCEDURE SP_RegistrarUsuario
-    @NombreUsuario VARCHAR(30),
-    @Contrasena VARCHAR(100),
-    @Dni VARCHAR(12),
-    @IdTipo INT,
-    @IdUsuarioAdmin INT,
-    @Resultado INT OUTPUT,
-    @Mensaje VARCHAR(200) OUTPUT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    BEGIN TRY
-        -- Verificar que el usuario que ejecuta sea administrador
-        DECLARE @TipoAdmin VARCHAR(20);
-        SELECT @TipoAdmin = t.NOMBRE_TIP
-        FROM USUARIOS_SM u
-        INNER JOIN TIPO_SM t ON u.ID_TIPO = t.ID_TIPO
-        WHERE u.ID_USUARIO = @IdUsuarioAdmin;
-
-        IF @TipoAdmin != 'ADMINISTRADOR'
-        BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'Solo los administradores pueden crear usuarios';
-            RETURN;
-        END
-
-        -- Verificar que el DNI existe en PERSONA_SM
-        IF NOT EXISTS (SELECT 1 FROM PERSONA_SM WHERE DNI_SM = @Dni)
-        BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'El DNI no está registrado como persona';
-            RETURN;
-        END
-
-        -- Verificar que el DNI no tenga ya un usuario
-        IF EXISTS (SELECT 1 FROM USUARIOS_SM WHERE DNI_SM = @Dni)
-        BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'Esta persona ya tiene un usuario asignado';
-            RETURN;
-        END
-
-        -- Verificar que el nombre de usuario no exista
-        IF EXISTS (SELECT 1 FROM USUARIOS_SM WHERE NOMBRE_US = @NombreUsuario)
-        BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'El nombre de usuario ya existe';
-            RETURN;
-        END
-
-        -- Insertar usuario
-        INSERT INTO USUARIOS_SM (NOMBRE_US, CONTRASEÑA_US, DNI_SM, ID_ESTADO, ID_TIPO)
-        VALUES (@NombreUsuario, @Contrasena, @Dni, 1, @IdTipo);
-
-        SET @Resultado = 1;
-        SET @Mensaje = 'Usuario registrado exitosamente';
-
-    END TRY
-    BEGIN CATCH
-        SET @Resultado = 0;
-        SET @Mensaje = 'Error al registrar usuario: ' + ERROR_MESSAGE();
-    END CATCH
-END
-go
-
--- SP para reporte de productos próximos a vencer
-CREATE PROCEDURE SP_ReporteProductosProximosVencer
-    @DiasAnticipacion INT = 30
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT
-        p.COD_PRODUCTO,
-        p.NOMBRE_PRO,
-        p.LOTE_PRO,
-        p.FECHA_VENCIMIENTO,
-        DATEDIFF(DAY, GETDATE(), p.FECHA_VENCIMIENTO) as DIAS_RESTANTES,
-        SUM(i.STOCK_ACTUAL) as STOCK_TOTAL,
-        p.PRECIO_VENTA,
-        (SUM(i.STOCK_ACTUAL) * p.PRECIO_VENTA) as VALOR_INVENTARIO
-    FROM PRODUCTO_SM p
-    INNER JOIN INVENTARIO_SM i ON p.COD_PRODUCTO = i.COD_PRODUCTO
-    WHERE p.FECHA_VENCIMIENTO IS NOT NULL
-    AND p.FECHA_VENCIMIENTO <= DATEADD(DAY, @DiasAnticipacion, GETDATE())
-    AND p.ID_ESTADO = 1
-    GROUP BY p.COD_PRODUCTO, p.NOMBRE_PRO, p.LOTE_PRO, p.FECHA_VENCIMIENTO, p.PRECIO_VENTA
-    HAVING SUM(i.STOCK_ACTUAL) > 0
-    ORDER BY p.FECHA_VENCIMIENTO ASC;
-END
-go
-
--- SP para reporte de productos con stock bajo
-CREATE PROCEDURE SP_ReporteStockBajo
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT
-        p.COD_PRODUCTO,
-        p.NOMBRE_PRO,
-        c.NOMBRE_CAT as CATEGORIA,
-        p.STOCK_MINIMO,
-        SUM(i.STOCK_ACTUAL) as STOCK_TOTAL,
-        SUM(CASE WHEN i.COD_ALMACEN = 'ALM251' THEN i.STOCK_ACTUAL ELSE 0 END) as STOCK_ALM01,
-        SUM(CASE WHEN i.COD_ALMACEN = 'ALM252' THEN i.STOCK_ACTUAL ELSE 0 END) as STOCK_ALM02,
-        p.PRECIO_VENTA,
-        pr.RAZON_SOCIAL as PROVEEDOR
-    FROM PRODUCTO_SM p
-    INNER JOIN CATEGORIA_SM c ON p.ID_CATEGORIA = c.ID_CATEGORIA
-    INNER JOIN PROVEEDOR_SM pr ON p.COD_PROV = pr.COD_PROV
-    INNER JOIN INVENTARIO_SM i ON p.COD_PRODUCTO = i.COD_PRODUCTO
-    WHERE p.ID_ESTADO = 1 -- Solo activos
-    GROUP BY p.COD_PRODUCTO, p.NOMBRE_PRO, c.NOMBRE_CAT, p.STOCK_MINIMO,
-             p.PRECIO_VENTA, pr.RAZON_SOCIAL
-    HAVING SUM(i.STOCK_ACTUAL) <= p.STOCK_MINIMO
-    ORDER BY SUM(i.STOCK_ACTUAL) ASC;
-END
-go
-
--- SP para reporte de ventas por vendedor
-CREATE PROCEDURE SP_ReporteVentasPorVendedor
-    @FechaInicio DATE,
-    @FechaFin DATE
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT
-        u.ID_USUARIO,
-        u.NOMBRE_US as VENDEDOR,
-        CONCAT(p.NOMBRE_SM, ' ', p.APELLIDO_SM) as NOMBRE_COMPLETO,
-        COUNT(v.COD_FACTURA) as CANTIDAD_VENTAS,
-        SUM(v.TOTAL_VENTA) as TOTAL_VENDIDO,
-        AVG(v.TOTAL_VENTA) as PROMEDIO_POR_VENTA,
-        SUM(vd.CANTIDAD) as TOTAL_PRODUCTOS_VENDIDOS
-    FROM USUARIOS_SM u
-    INNER JOIN PERSONA_SM p ON u.DNI_SM = p.DNI_SM
-    LEFT JOIN VENTA_CABECERA_SM v ON u.ID_USUARIO = v.ID_USUARIO
-        AND CAST(v.FECHA_VENTA AS DATE) BETWEEN @FechaInicio AND @FechaFin
-    LEFT JOIN VENTA_DETALLE_SM vd ON v.COD_FACTURA = vd.COD_FACTURA
-    WHERE u.ID_ESTADO = 1 -- Solo usuarios activos
-    GROUP BY u.ID_USUARIO, u.NOMBRE_US, p.NOMBRE_SM, p.APELLIDO_SM
-    ORDER BY SUM(v.TOTAL_VENTA) DESC;
-END
-go
-
--- SP para validar disponibilidad de stock antes de venta
-CREATE PROCEDURE SP_ValidarDisponibilidadStock
-    @CodigoProducto VARCHAR(20),
-    @CantidadRequerida INT,
-    @CodigoAlmacen VARCHAR(10) = NULL,
-    @Disponible BIT OUTPUT,
-    @StockDisponible INT OUTPUT,
-    @Mensaje VARCHAR(200) OUTPUT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    IF @CodigoAlmacen IS NOT NULL
-    BEGIN
-        -- Verificar en almacén específico
-        SELECT @StockDisponible = STOCK_ACTUAL
-        FROM INVENTARIO_SM
-        WHERE COD_PRODUCTO = @CodigoProducto AND COD_ALMACEN = @CodigoAlmacen;
-
-        IF @StockDisponible IS NULL
-        BEGIN
-            SET @Disponible = 0;
-            SET @StockDisponible = 0;
-            SET @Mensaje = 'Producto no encontrado en el almacén especificado';
-            RETURN;
-        END
-    END
-    ELSE
-    BEGIN
-        -- Verificar stock total en todos los almacenes
-        SELECT @StockDisponible = SUM(STOCK_ACTUAL)
-        FROM INVENTARIO_SM
-        WHERE COD_PRODUCTO = @CodigoProducto;
-
-        IF @StockDisponible IS NULL
-        BEGIN
-            SET @Disponible = 0;
-            SET @StockDisponible = 0;
-            SET @Mensaje = 'Producto no encontrado en inventario';
-            RETURN;
-        END
-    END
-
-    IF @StockDisponible >= @CantidadRequerida
-    BEGIN
-        SET @Disponible = 1;
-        SET @Mensaje = 'Stock disponible';
-    END
-    ELSE
-    BEGIN
-        SET @Disponible = 0;
-        SET @Mensaje = 'Stock insuficiente. Disponible: ' + CAST(@StockDisponible AS VARCHAR) +
-                      ', Requerido: ' + CAST(@CantidadRequerida AS VARCHAR);
-    END
-END
+END;
 go
 
 CREATE PROCEDURE SP_ValidarLogin
-    @NombreUsuario VARCHAR(30),
-    @Contrasena VARCHAR(100),
-    @Resultado INT OUTPUT,
-    @Mensaje VARCHAR(200) OUTPUT,
-    @IdUsuario INT OUTPUT,
-    @TipoUsuario VARCHAR(20) OUTPUT
+    @nombreUsuario VARCHAR(50),
+    @contrasena VARCHAR(255),
+    @ipAcceso VARCHAR(50) = NULL,
+    -- SALIDAS para Java
+    @loginExitoso BIT OUTPUT,
+    @usuarioBloqueado BIT OUTPUT,
+    @usuarioInactivo BIT OUTPUT,
+    @credencialesInvalidas BIT OUTPUT,
+    @idUsuario INT OUTPUT,
+    @nombreCompleto VARCHAR(150) OUTPUT,
+    @rol VARCHAR(20) OUTPUT,
+    @minutosRestantesBloq INT OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @IdEstadoActivo INT = 1;
-    DECLARE @IdEstadoBloqueado INT = 2;
-    DECLARE @MaxIntentos INT = 3;
-    DECLARE @TiempoBloqueo INT = 30; -- minutos
+    -- Inicializar salidas
+    SET @loginExitoso = 0;
+    SET @usuarioBloqueado = 0;
+    SET @usuarioInactivo = 0;
+    SET @credencialesInvalidas = 0;
+    SET @idUsuario = NULL;
+    SET @nombreCompleto = NULL;
+    SET @rol = NULL;
+    SET @minutosRestantesBloq = 0;
 
-    -- Verificar si el usuario existe
-    IF NOT EXISTS (SELECT 1 FROM USUARIOS_SM WHERE NOMBRE_US = @NombreUsuario)
-    BEGIN
-        SET @Resultado = 0;
-        SET @Mensaje = 'Usuario no existe';
-        RETURN;
-    END
+    BEGIN TRY
+        DECLARE @estadoUsuario VARCHAR(15);
+        DECLARE @bloqueadoHasta DATETIME;
+        DECLARE @intentosFallidos INT;
+        DECLARE @contrasenaDB VARCHAR(255);
 
-    -- Obtener información del usuario
-    SELECT
-        @IdUsuario = u.ID_USUARIO,
-        @TipoUsuario = t.NOMBRE_TIP
-    FROM USUARIOS_SM u
-    INNER JOIN TIPO_SM t ON u.ID_TIPO = t.ID_TIPO
-    WHERE u.NOMBRE_US = @NombreUsuario;
+        -- 1. Verificar si el usuario existe
+        SELECT
+            @idUsuario = idUsuario,
+            @nombreCompleto = nombreCompleto,
+            @rol = rol,
+            @estadoUsuario = estado,
+            @bloqueadoHasta = bloqueadoHasta,
+            @intentosFallidos = intentosFallidos,
+            @contrasenaDB = contrasena
+        FROM Usuario
+        WHERE nombreUsuario = @nombreUsuario;
 
-    -- Verificar si está bloqueado y si ya pasó el tiempo
-    DECLARE @EstadoUsuario INT, @UltimoIntento DATETIME, @IntentosFallidos INT;
+        -- Si el usuario no existe
+        IF @idUsuario IS NULL
+            BEGIN
+                SET @credencialesInvalidas = 1;
 
-    SELECT
-        @EstadoUsuario = ID_ESTADO,
-        @UltimoIntento = ULTIMO_INGRESO,
-        @IntentosFallidos = INTENTOS_FALLIDOS
-    FROM USUARIOS_SM
-    WHERE ID_USUARIO = @IdUsuario;
+                INSERT INTO LogAcceso (nombreUsuario, exitoso, ipAcceso, motivo)
+                VALUES (@nombreUsuario, 0, @ipAcceso, 'Usuario no existe');
 
-    -- Si está bloqueado, verificar si ya pasaron 30 minutos
-    IF @EstadoUsuario = @IdEstadoBloqueado
-    BEGIN
-        IF DATEDIFF(MINUTE, @UltimoIntento, GETDATE()) >= @TiempoBloqueo
-        BEGIN
-            -- Desbloquear usuario
-            UPDATE USUARIOS_SM
-            SET ID_ESTADO = @IdEstadoActivo,
-                INTENTOS_FALLIDOS = 0
-            WHERE ID_USUARIO = @IdUsuario;
-        END
+                RETURN;
+            END
+
+        -- 2. Verificar si está inactivo
+        IF @estadoUsuario = 'Inactivo'
+            BEGIN
+                SET @usuarioInactivo = 1;
+
+                INSERT INTO LogAcceso (nombreUsuario, exitoso, ipAcceso, motivo)
+                VALUES (@nombreUsuario, 0, @ipAcceso, 'Usuario inactivo');
+
+                RETURN;
+            END
+
+        -- 3. Verificar si está bloqueado temporalmente
+        IF @bloqueadoHasta IS NOT NULL AND @bloqueadoHasta > GETDATE()
+            BEGIN
+                SET @usuarioBloqueado = 1;
+                SET @minutosRestantesBloq = DATEDIFF(MINUTE, GETDATE(), @bloqueadoHasta);
+
+                INSERT INTO LogAcceso (nombreUsuario, exitoso, ipAcceso, motivo)
+                VALUES (@nombreUsuario, 0, @ipAcceso, 'Usuario bloqueado temporalmente');
+
+                RETURN;
+            END
+
+        -- 4. Si el bloqueo ya expiró, desbloquearlo
+        IF @bloqueadoHasta IS NOT NULL AND @bloqueadoHasta <= GETDATE()
+            BEGIN
+                UPDATE Usuario
+                SET bloqueadoHasta = NULL,
+                    intentosFallidos = 0
+                WHERE idUsuario = @idUsuario;
+
+                SET @intentosFallidos = 0;
+            END
+
+        -- 5. Validar contraseña
+        IF @contrasenaDB = @contrasena
+            BEGIN
+                -- Login exitoso
+                SET @loginExitoso = 1;
+
+                UPDATE Usuario
+                SET ultimoAcceso = GETDATE(),
+                    intentosFallidos = 0,
+                    bloqueadoHasta = NULL
+                WHERE idUsuario = @idUsuario;
+
+                INSERT INTO LogAcceso (nombreUsuario, exitoso, ipAcceso, motivo)
+                VALUES (@nombreUsuario, 1, @ipAcceso, 'Login exitoso');
+            END
         ELSE
-        BEGIN
-            SET @Resultado = 0;
-            SET @Mensaje = 'Usuario bloqueado. Espere ' +
-                          CAST(@TiempoBloqueo - DATEDIFF(MINUTE, @UltimoIntento, GETDATE()) AS VARCHAR) +
-                           N' minutos más';
-            RETURN;
-        END
-    END
+            BEGIN
+                -- Contraseña incorrecta
+                SET @credencialesInvalidas = 1;
+                SET @intentosFallidos = @intentosFallidos + 1;
 
-    -- Validar contraseña
-    IF EXISTS (SELECT 1 FROM USUARIOS_SM WHERE ID_USUARIO = @IdUsuario AND CONTRASEÑA_US = @Contrasena)
-    BEGIN
-        -- Login exitoso
-        UPDATE USUARIOS_SM
-        SET ULTIMO_INGRESO = GETDATE(),
-            INTENTOS_FALLIDOS = 0
-        WHERE ID_USUARIO = @IdUsuario;
+                -- Si alcanza 3 intentos, bloquear por 30 minutos
+                IF @intentosFallidos >= 3
+                    BEGIN
+                        SET @usuarioBloqueado = 1;
+                        SET @minutosRestantesBloq = 30;
 
-        SET @Resultado = 1;
-        SET @Mensaje = 'Login exitoso';
-    END
-    ELSE
-    BEGIN
-        -- Incrementar intentos fallidos
-        UPDATE USUARIOS_SM
-        SET INTENTOS_FALLIDOS = INTENTOS_FALLIDOS + 1,
-            ULTIMO_INGRESO = GETDATE()
-        WHERE ID_USUARIO = @IdUsuario;
+                        UPDATE Usuario
+                        SET intentosFallidos = @intentosFallidos,
+                            bloqueadoHasta = DATEADD(MINUTE, 30, GETDATE())
+                        WHERE idUsuario = @idUsuario;
 
-        -- Verificar si debe bloquearse
-        IF @IntentosFallidos + 1 >= @MaxIntentos
-        BEGIN
-            UPDATE USUARIOS_SM
-            SET ID_ESTADO = @IdEstadoBloqueado
-            WHERE ID_USUARIO = @IdUsuario;
+                        INSERT INTO LogAcceso (nombreUsuario, exitoso, ipAcceso, motivo)
+                        VALUES (@nombreUsuario, 0, @ipAcceso, 'Bloqueado por 3 intentos fallidos');
+                    END
+                ELSE
+                    BEGIN
+                        UPDATE Usuario
+                        SET intentosFallidos = @intentosFallidos
+                        WHERE idUsuario = @idUsuario;
 
-            SET @Mensaje = 'Usuario bloqueado por múltiples intentos fallidos';
-        END
-        ELSE
-        BEGIN
-            SET @Mensaje = 'Contraseña incorrecta. Intento ' +
-                          CAST(@IntentosFallidos + 1 AS VARCHAR) + ' de ' +
-                          CAST(@MaxIntentos AS VARCHAR);
-        END
+                        INSERT INTO LogAcceso (nombreUsuario, exitoso, ipAcceso, motivo)
+                        VALUES (@nombreUsuario, 0, @ipAcceso, 'Contraseña incorrecta');
+                    END
+            END
 
-        SET @Resultado = 0;
-    END
-END
+    END TRY
+    BEGIN CATCH
+        -- Si ocurre algún error inesperado
+        SET @loginExitoso = 0;
+        SET @usuarioBloqueado = 0;
+        SET @usuarioInactivo = 0;
+        SET @credencialesInvalidas = 0;
+
+        INSERT INTO LogAcceso (nombreUsuario, exitoso, ipAcceso, motivo)
+        VALUES (@nombreUsuario, 0, @ipAcceso, 'Error del sistema');
+    END CATCH
+END;
+go
+
+CREATE PROCEDURE SP_VerificarPermiso
+    @idUsuario INT,
+    @permisoRequerido VARCHAR(50),
+    @tienePermiso BIT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SET @tienePermiso = 0;
+
+    BEGIN TRY
+        DECLARE @rol VARCHAR(20);
+
+        SELECT @rol = rol
+        FROM Usuario
+        WHERE idUsuario = @idUsuario AND estado = 'Activo';
+
+        -- Administrador tiene todos los permisos
+        IF @rol = 'Administrador'
+            BEGIN
+                SET @tienePermiso = 1;
+                RETURN;
+            END
+
+        -- Permisos específicos por rol
+        IF @permisoRequerido = 'VENTAS' AND @rol IN ('Vendedor', 'Administrador')
+            SET @tienePermiso = 1;
+        ELSE IF @permisoRequerido = 'INVENTARIO' AND @rol IN ('Almacenero', 'Administrador')
+            SET @tienePermiso = 1;
+        ELSE IF @permisoRequerido = 'COMPRAS' AND @rol IN ('Administrador', 'Almacenero')
+            SET @tienePermiso = 1;
+        ELSE IF @permisoRequerido = 'REPORTES' AND @rol IN ('Administrador', 'Vendedor')
+            SET @tienePermiso = 1;
+        ELSE IF @permisoRequerido = 'USUARIOS' AND @rol = 'Administrador'
+            SET @tienePermiso = 1;
+        ELSE IF @permisoRequerido = 'CLIENTES' AND @rol IN ('Vendedor', 'Administrador')
+            SET @tienePermiso = 1;
+        ELSE IF @permisoRequerido = 'PROVEEDORES' AND @rol IN ('Administrador', 'Almacenero')
+            SET @tienePermiso = 1;
+        ELSE IF @permisoRequerido = 'PRODUCTOS' AND @rol IN ('Administrador', 'Almacenero')
+            SET @tienePermiso = 1;
+
+    END TRY
+    BEGIN CATCH
+        SET @tienePermiso = 0;
+    END CATCH
+END;
+go
+
+CREATE PROCEDURE SP_VerificarSesion
+    @idUsuario INT,
+    @sesionValida BIT OUTPUT,
+    @usuarioActivo BIT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SET @sesionValida = 0;
+    SET @usuarioActivo = 0;
+
+    BEGIN TRY
+        DECLARE @estado VARCHAR(15);
+
+        SELECT @estado = estado
+        FROM Usuario
+        WHERE idUsuario = @idUsuario;
+
+        IF @estado = 'Activo'
+            BEGIN
+                SET @sesionValida = 1;
+                SET @usuarioActivo = 1;
+            END
+        ELSE IF @estado = 'Inactivo'
+            BEGIN
+                SET @sesionValida = 0;
+                SET @usuarioActivo = 0;
+            END
+
+    END TRY
+    BEGIN CATCH
+        SET @sesionValida = 0;
+        SET @usuarioActivo = 0;
+    END CATCH
+END;
 go
 
 
