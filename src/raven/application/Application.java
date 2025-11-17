@@ -20,10 +20,6 @@ import raven.login_register.CustomModalBorder;
 import raven.modal.option.Option;
 import raven.toast.Notifications;
 
-/**
- *
- * @author
- */
 public class Application extends JFrame {
 
     private final boolean UNDECORATED = !true;

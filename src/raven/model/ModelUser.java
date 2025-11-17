@@ -1,9 +1,5 @@
 package raven.model;
 
-/**
- *
- * @author Raven
- */
 public class ModelUser {
 
     private int idUsuario;

@@ -3,10 +3,6 @@ package raven.forms;
 import raven.components.SimpleForm;
 import raven.menu.FormManager;
 
-/**
- *
- * @author RAVEN
- */
 public class ReadForm extends SimpleForm {
 
     /**

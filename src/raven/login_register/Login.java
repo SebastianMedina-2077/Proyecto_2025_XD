@@ -1,9 +1,11 @@
 package raven.login_register;
 
+import DB_Conection.DatabaseConnection;
 import Models.Usuario;
 import Repository.UsuarioDAO;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import raven.alerts.MessageAlerts;
 import raven.login_register.component.ButtonLink;
 import net.miginfocom.swing.MigLayout;
 import raven.menu.FormManager;
@@ -21,7 +23,6 @@ import java.awt.event.ActionListener;
 import java.net.InetAddress;
 
 public class Login extends JPanel {
-
     public static final String ID = "login_id";
     private AuthenticationProxy authProxy;
     private UsuarioDAO usuarioDAO;
@@ -34,7 +35,8 @@ public class Login extends JPanel {
         authProxy = new AuthenticationProxy();
         usuarioDAO = new UsuarioDAO();
         setLayout(new MigLayout("insets n 20 n 20,fillx,wrap,width 380", "[fill]"));
-        JTextArea text = new JTextArea("Become a member you'll enjoy exclusive deals,\noffers, invites and rewards.");
+
+        JTextArea text = new JTextArea("Inicie sesion para acceder al sistema de gestion.\nDisfrute de todas las funcionalidades disponibles.");
         text.setEditable(false);
         text.setFocusable(false);
         text.putClientProperty(FlatClientProperties.STYLE, "" +
@@ -53,22 +55,23 @@ public class Login extends JPanel {
         txtUsername.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ingrese su usuario");
         add(txtUsername);
 
-        JLabel lbPassword = new JLabel("Password");
+        JLabel lbPassword = new JLabel("Contrasena");
         lbPassword.putClientProperty(FlatClientProperties.STYLE, "" +
                 "font:bold;");
         add(lbPassword, "gapy 10 n");
 
         txtPassword = new JPasswordField();
         installRevealButton(txtPassword);
-        txtPassword.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ingrese su contraseña");
+        txtPassword.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ingrese su contrasena");
         add(txtPassword);
 
-        chkRememberMe = new JCheckBox("Recordar sesión");
+        chkRememberMe = new JCheckBox("Recordar sesion");
         add(chkRememberMe, "split 2,gapy 10 10");
-        ButtonLink cmdForgotPassword = new ButtonLink("Forgot password ?");
+
+        ButtonLink cmdForgotPassword = new ButtonLink("Olvido su contrasena?");
         add(cmdForgotPassword, "gapx push n");
 
-        JButton cmdLogin = new JButton("Login") {
+        JButton cmdLogin = new JButton("Iniciar Sesion") {
             @Override
             public boolean isDefaultButton() {
                 return true;
@@ -80,26 +83,28 @@ public class Login extends JPanel {
 
         add(new JSeparator(), "gapy 15 15");
 
-        add(new JLabel("Don't have an account ?"), "split 2,gapx push n");
+        add(new JLabel("No tienes cuenta?"), "split 2,gapx push n");
         ButtonLink cmdSignUp = new ButtonLink("Registrarse");
         add(cmdSignUp, "gapx n push");
 
-        // event
         cmdSignUp.addActionListener(actionEvent -> {
             String icon = "raven/login_register/icon/signup.svg";
-            ModalDialog.pushModal(new CustomModalBorder(new SignUp(), "Sign up", icon), ID);
+            ModalDialog.pushModal(new CustomModalBorder(new SignUp(), "Registrar Usuario", icon), ID);
         });
 
         cmdForgotPassword.addActionListener(actionEvent -> {
             String icon = "raven/login_register/icon/forgot_password.svg";
-            ModalDialog.pushModal(new CustomModalBorder(new ForgotPassword(), "Forgot password", icon), ID);
+            ModalDialog.pushModal(new CustomModalBorder(new ForgotPassword(), "Recuperar Contrasena", icon), ID);
         });
 
         cmdLogin.addActionListener((e) -> {
             realizarLogin();
         });
+
         txtPassword.addActionListener(e -> cmdLogin.doClick());
         txtUsername.addActionListener(e -> txtPassword.requestFocus());
+
+        cargarSesionGuardada();
     }
 
     private void realizarLogin() {
@@ -107,9 +112,6 @@ public class Login extends JPanel {
         String password = new String(txtPassword.getPassword()).trim();
         boolean recordar = chkRememberMe.isSelected();
 
-        // ========================================
-        // VALIDACIONES BÁSICAS
-        // ========================================
         if (userName.isEmpty()) {
             Notifications.getInstance().show(Notifications.Type.WARNING,
                     "Por favor, ingrese su nombre de usuario");
@@ -119,27 +121,20 @@ public class Login extends JPanel {
 
         if (password.isEmpty()) {
             Notifications.getInstance().show(Notifications.Type.WARNING,
-                    "Por favor, ingrese su contraseña");
+                    "Por favor, ingrese su contrasena");
             txtPassword.requestFocus();
             return;
         }
 
-        // ========================================
-        // MOSTRAR INDICADOR DE CARGA
-        // ========================================
         JDialog loadingDialog = mostrarLoading();
-
-        // Obtener IP del cliente
         String ipAcceso = obtenerIP();
 
-        // ========================================
-        // EJECUTAR LOGIN EN SEGUNDO PLANO
-        // ========================================
         SwingWorker<ResultadoLogin, Void> worker = new SwingWorker<>() {
             @Override
             protected ResultadoLogin doInBackground() {
                 try {
-                    // Pequeña pausa para mostrar el loading (opcional)
+                    DatabaseConnection.getInstance().refreshConnection();
+
                     Thread.sleep(500);
                     return authProxy.login(userName, password, ipAcceso);
                 } catch (InterruptedException ex) {
@@ -166,8 +161,25 @@ public class Login extends JPanel {
         worker.execute();
     }
 
+    private void cargarSesionGuardada() {
+        try {
+            java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userRoot()
+                    .node("JugueteriaApp");
+
+            boolean recordar = prefs.getBoolean("recordar", false);
+
+            if (recordar) {
+                String ultimoUsuario = prefs.get("ultimoUsuario", "");
+                if (!ultimoUsuario.isEmpty()) {
+                    chkRememberMe.setSelected(true);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error al cargar sesion: " + e.getMessage());
+        }
+    }
+
     private void guardarSesion(ResultadoLogin resultado) {
-        // Implementar usando Preferences o archivo
         try {
             java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userRoot()
                     .node("JugueteriaApp");
@@ -176,7 +188,7 @@ public class Login extends JPanel {
             prefs.putBoolean("recordar", true);
             prefs.flush();
         } catch (Exception e) {
-            System.err.println("Error al guardar sesión: " + e.getMessage());
+            System.err.println("Error al guardar sesion: " + e.getMessage());
         }
     }
 
@@ -190,18 +202,12 @@ public class Login extends JPanel {
     }
 
     private void procesarResultadoLogin(ResultadoLogin resultado, String userName, boolean recordar) {
-        // ========================================
-        // LOGIN EXITOSO
-        // ========================================
         if (resultado.isLoginExitoso()) {
-            // Obtener información completa del usuario
             Usuario usuarioCompleto = usuarioDAO.obtenerPorId(resultado.getIdUsuario());
 
-            // Crear ModelUser para FormManager
             boolean isAdmin = "Administrador".equals(resultado.getRol());
             ModelUser modelUser = new ModelUser(userName, isAdmin);
 
-            // Si queremos pasar más información
             if (usuarioCompleto != null) {
                 modelUser = new ModelUser(
                         usuarioCompleto.getIdUsuario(),
@@ -213,70 +219,41 @@ public class Login extends JPanel {
                 );
             }
 
-            // Notificación de éxito
             Notifications.getInstance().show(Notifications.Type.SUCCESS,
-                    "¡Bienvenido " + resultado.getNombreCompleto() + "!");
+                    "Bienvenido " + resultado.getNombreCompleto() + "!");
 
-            // Guardar sesión si lo solicita
             if (recordar) {
                 guardarSesion(resultado);
             }
 
-            // Limpiar campos
             limpiarCampos();
-
-            // Cerrar modal de login
             ModalDialog.closeAllModal();
-
-            // ========================================
-            // ABRIR DASHBOARD CON FORMMANAGER
-            // ========================================
             FormManager.login(modelUser);
-
             return;
         }
 
-        // ========================================
-        // USUARIO BLOQUEADO
-        // ========================================
         if (resultado.isUsuarioBloqueado()) {
             int minutos = resultado.getMinutosRestantesBloq();
             Notifications.getInstance().show(Notifications.Type.ERROR,
                     "Usuario bloqueado por " + minutos + " minutos.\n" +
                             "Demasiados intentos fallidos.");
-
             mostrarDialogoBloqueado(minutos);
             return;
         }
 
-        // ========================================
-        // USUARIO INACTIVO
-        // ========================================
         if (resultado.isUsuarioInactivo()) {
-            Notifications.getInstance().show(Notifications.Type.WARNING,
-                    "Su cuenta está inactiva.\nContacte al administrador.");
-
-            JOptionPane.showMessageDialog(this,
+            MessageAlerts.getInstance().showMessage("Su cuenta esta inactiva.\nContacte al administrador.",
                     "Su cuenta ha sido desactivada.\n\n" +
                             "Por favor, contacte al administrador del sistema\n" +
-                            "para más información.",
-                    "Cuenta Inactiva",
-                    JOptionPane.WARNING_MESSAGE);
+                            "para mas informacion.",MessageAlerts.MessageType.WARNING);
             return;
         }
 
-        // ========================================
-        // CREDENCIALES INVÁLIDAS
-        // ========================================
         if (resultado.isCredencialesInvalidas()) {
             Notifications.getInstance().show(Notifications.Type.ERROR,
-                    "Usuario o contraseña incorrectos");
-
-            // Limpiar solo la contraseña
+                    "Usuario o contrasena incorrectos");
             txtPassword.setText("");
             txtPassword.requestFocus();
-
-            // Efecto de shake en el panel (opcional)
             shakePanel();
         }
     }
@@ -284,7 +261,7 @@ public class Login extends JPanel {
     private void mostrarDialogoBloqueado(int minutos) {
         JPanel panel = new JPanel(new MigLayout("fillx,wrap,insets 20", "[center]"));
 
-        JLabel icono = new JLabel("\u26A0"); // Símbolo de advertencia
+        JLabel icono = new JLabel("\u26A0");
         icono.setFont(new Font("Dialog", Font.PLAIN, 48));
         panel.add(icono);
 
@@ -294,10 +271,10 @@ public class Login extends JPanel {
 
         JTextArea mensaje = new JTextArea(
                 "Tu cuenta ha sido bloqueada temporalmente\n" +
-                        "por múltiples intentos fallidos de inicio de sesión.\n\n" +
+                        "por multiples intentos fallidos de inicio de sesion.\n\n" +
                         "Tiempo restante: " + minutos + " minutos\n\n" +
-                        "Si olvidaste tu contraseña, usa la opción\n" +
-                        "de recuperación de contraseña."
+                        "Si olvidaste tu contrasena, usa la opcion\n" +
+                        "de recuperacion de contrasena."
         );
         mensaje.setEditable(false);
         mensaje.setFocusable(false);
@@ -334,7 +311,6 @@ public class Login extends JPanel {
         dialog.pack();
         dialog.setLocationRelativeTo(this);
 
-        // Mostrar en hilo separado
         new Thread(() -> dialog.setVisible(true)).start();
 
         return dialog;
@@ -350,7 +326,6 @@ public class Login extends JPanel {
         JButton button = new JButton(iconEye);
 
         button.addActionListener(new ActionListener() {
-
             private char defaultEchoChart = txt.getEchoChar();
             private boolean show;
 

@@ -12,11 +12,10 @@ public class EmailService {
     private static EmailService instance;
     private Map<String, TokenRecuperacion> tokensActivos;
 
-    // Configuración del servidor SMTP
     private final String SMTP_HOST = "smtp.gmail.com";
     private final String SMTP_PORT = "587";
-    private final String EMAIL_FROM = "tu_email@gmail.com"; // Configurar
-    private final String EMAIL_PASSWORD = "tu_contraseña_app"; // Configurar
+    private final String EMAIL_FROM = "fonixerpaul@gmail.com";
+    private final String EMAIL_PASSWORD = "uyom bmaq aewk clcr";
 
     private EmailService() {
         tokensActivos = new HashMap<>();
@@ -29,7 +28,6 @@ public class EmailService {
         return instance;
     }
 
-    // Generar token aleatorio
     private String generarToken() {
         String caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         SecureRandom random = new SecureRandom();
@@ -42,19 +40,16 @@ public class EmailService {
         return token.toString();
     }
 
-    // Enviar email de recuperación
     public boolean enviarEmailRecuperacion(String emailDestino, String nombreUsuario) {
         String token = generarToken();
 
-        // Guardar token con expiración de 15 minutos
         TokenRecuperacion tokenObj = new TokenRecuperacion(token, nombreUsuario,
                 LocalDateTime.now().plusMinutes(15));
         tokensActivos.put(token, tokenObj);
 
-        // Limpiar tokens expirados
         limpiarTokensExpirados();
 
-        String asunto = "Recuperación de Contraseña - Juguetería";
+        String asunto = "Recuperacion de Contrasena - Sistema Jugueteria";
         String cuerpo = construirCuerpoEmail(nombreUsuario, token);
 
         return enviarEmail(emailDestino, asunto, cuerpo);
@@ -65,31 +60,40 @@ public class EmailService {
                 "<html>\n" +
                 "<head>\n" +
                 "    <style>\n" +
-                "        body { font-family: Arial, sans-serif; line-height: 1.6; }\n" +
+                "        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n" +
                 "        .container { max-width: 600px; margin: 0 auto; padding: 20px; }\n" +
-                "        .header { background: #4CAF50; color: white; padding: 20px; text-align: center; }\n" +
-                "        .content { padding: 20px; background: #f9f9f9; }\n" +
-                "        .token { font-size: 32px; font-weight: bold; color: #4CAF50; " +
-                "                 letter-spacing: 5px; text-align: center; padding: 20px; " +
-                "                 background: white; border: 2px dashed #4CAF50; margin: 20px 0; }\n" +
-                "        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }\n" +
+                "        .header { background: #4CAF50; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }\n" +
+                "        .content { padding: 30px; background: #f9f9f9; border: 1px solid #ddd; }\n" +
+                "        .token-box { font-size: 32px; font-weight: bold; color: #4CAF50; " +
+                "                     letter-spacing: 8px; text-align: center; padding: 25px; " +
+                "                     background: white; border: 2px dashed #4CAF50; margin: 25px 0; " +
+                "                     border-radius: 8px; }\n" +
+                "        .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; }\n" +
+                "        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; border-top: 1px solid #ddd; }\n" +
+                "        .info { color: #666; font-size: 14px; }\n" +
                 "    </style>\n" +
                 "</head>\n" +
                 "<body>\n" +
                 "    <div class='container'>\n" +
                 "        <div class='header'>\n" +
-                "            <h1>🎮 Recuperación de Contraseña</h1>\n" +
+                "            <h1>Recuperacion de Contrasena</h1>\n" +
                 "        </div>\n" +
                 "        <div class='content'>\n" +
-                "            <p>Hola <strong>" + nombreUsuario + "</strong>,</p>\n" +
-                "            <p>Hemos recibido una solicitud para restablecer tu contraseña.</p>\n" +
-                "            <p>Tu código de verificación es:</p>\n" +
-                "            <div class='token'>" + token + "</div>\n" +
-                "            <p><strong>⏰ Este código es válido por 15 minutos.</strong></p>\n" +
-                "            <p>Si no solicitaste este cambio, ignora este correo.</p>\n" +
+                "            <p>Estimado/a <strong>" + nombreUsuario + "</strong>,</p>\n" +
+                "            <p>Hemos recibido una solicitud para restablecer la contrasena de su cuenta.</p>\n" +
+                "            <p>Su codigo de verificacion es:</p>\n" +
+                "            <div class='token-box'>" + token + "</div>\n" +
+                "            <div class='warning'>\n" +
+                "                <strong>IMPORTANTE:</strong> Este codigo es valido por 15 minutos.\n" +
+                "            </div>\n" +
+                "            <p class='info'>Si no solicitaste este cambio, puedes ignorar este correo de forma segura. " +
+                "            Tu contrasena actual permanecera sin cambios.</p>\n" +
+                "            <p class='info'>Por tu seguridad, nunca compartas este codigo con nadie.</p>\n" +
                 "        </div>\n" +
                 "        <div class='footer'>\n" +
-                "            <p>© 2025 Sistema de Juguetería. Todos los derechos reservados.</p>\n" +
+                "            <p>Sistema de Gestion - Jugueteria</p>\n" +
+                "            <p>Este es un mensaje automatico, por favor no responder a este correo.</p>\n" +
+                "            <p>&copy; 2025 Todos los derechos reservados.</p>\n" +
                 "        </div>\n" +
                 "    </div>\n" +
                 "</body>\n" +
@@ -103,6 +107,7 @@ public class EmailService {
         props.put("mail.smtp.host", SMTP_HOST);
         props.put("mail.smtp.port", SMTP_PORT);
         props.put("mail.smtp.ssl.trust", SMTP_HOST);
+        props.put("mail.smtp.ssl.protocols", "TLSv1.2");
 
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
@@ -113,7 +118,7 @@ public class EmailService {
 
         try {
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(EMAIL_FROM));
+            message.setFrom(new InternetAddress(EMAIL_FROM, "Sistema Jugueteria"));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario));
             message.setSubject(asunto);
             message.setContent(cuerpo, "text/html; charset=utf-8");
@@ -122,36 +127,42 @@ public class EmailService {
             System.out.println("Email enviado exitosamente a: " + destinatario);
             return true;
 
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             System.err.println("Error al enviar email: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
-    // Validar token
     public boolean validarToken(String token, String nombreUsuario) {
-        TokenRecuperacion tokenObj = tokensActivos.get(token);
+        if (token == null || nombreUsuario == null) {
+            return false;
+        }
+
+        TokenRecuperacion tokenObj = tokensActivos.get(token.toUpperCase());
 
         if (tokenObj == null) {
-            return false; // Token no existe
+            return false;
         }
 
         if (tokenObj.estaExpirado()) {
-            tokensActivos.remove(token);
-            return false; // Token expirado
+            tokensActivos.remove(token.toUpperCase());
+            return false;
         }
 
         if (!tokenObj.getNombreUsuario().equals(nombreUsuario)) {
-            return false; // Token no corresponde al usuario
+            return false;
         }
 
         return true;
     }
 
-    // Consumir token (usar una sola vez)
     public boolean consumirToken(String token) {
-        TokenRecuperacion tokenObj = tokensActivos.remove(token);
+        if (token == null) {
+            return false;
+        }
+
+        TokenRecuperacion tokenObj = tokensActivos.remove(token.toUpperCase());
         return tokenObj != null && !tokenObj.estaExpirado();
     }
 
@@ -159,7 +170,6 @@ public class EmailService {
         tokensActivos.entrySet().removeIf(entry -> entry.getValue().estaExpirado());
     }
 
-    // Clase interna para manejar tokens
     private static class TokenRecuperacion {
         private String token;
         private String nombreUsuario;

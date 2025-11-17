@@ -13,10 +13,6 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 
-/**
- *
- * @author Raven
- */
 public class ThemesChange extends JPanel {
 
     public ThemesChange() {

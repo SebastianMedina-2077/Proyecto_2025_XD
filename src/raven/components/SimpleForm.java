@@ -3,10 +3,6 @@ package raven.components;
 import com.formdev.flatlaf.FlatClientProperties;
 import javax.swing.JPanel;
 
-/**
- *
- * @author Raven
- */
 public class SimpleForm extends JPanel {
 
     public SimpleForm() {

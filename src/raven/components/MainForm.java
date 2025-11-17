@@ -13,10 +13,6 @@ import raven.swing.slider.PanelSlider;
 import raven.swing.slider.SimpleTransition;
 import raven.swing.slider.SliderTransition;
 
-/**
- *
- * @author
- */
 public class MainForm extends JPanel {
 
     private final boolean undecorated;

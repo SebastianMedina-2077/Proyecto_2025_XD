@@ -12,10 +12,6 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-/**
- *
- * @author Raven
- */
 public class Background extends JPanel {
 
     private final boolean udecorated;

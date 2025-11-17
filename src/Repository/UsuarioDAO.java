@@ -37,32 +37,30 @@ public class UsuarioDAO extends DAO<Usuario> {
         return usuario;
     }
 
-    // MÉTODO PRINCIPAL: Validar Login usando SP_ValidarLogin
     public ResultadoLogin validarLogin(String nombreUsuario, String contrasena, String ipAcceso) {
         ResultadoLogin resultado = new ResultadoLogin();
+        Connection con = null;
+        CallableStatement cs = null;
 
-        try (Connection con = getConnection();
-             CallableStatement cs = con.prepareCall(
-                     "{CALL SP_ValidarLogin(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")) {
+        try {
+            con = getConnection();
+            cs = con.prepareCall("{CALL SP_ValidarLogin(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
 
-            // Parámetros de entrada
             cs.setString(1, nombreUsuario);
             cs.setString(2, contrasena);
             cs.setString(3, ipAcceso);
 
-            // Parámetros de salida
-            cs.registerOutParameter(4, Types.BIT); // loginExitoso
-            cs.registerOutParameter(5, Types.BIT); // usuarioBloqueado
-            cs.registerOutParameter(6, Types.BIT); // usuarioInactivo
-            cs.registerOutParameter(7, Types.BIT); // credencialesInvalidas
-            cs.registerOutParameter(8, Types.INTEGER); // idUsuario
-            cs.registerOutParameter(9, Types.VARCHAR); // nombreCompleto
-            cs.registerOutParameter(10, Types.VARCHAR); // rol
-            cs.registerOutParameter(11, Types.INTEGER); // minutosRestantesBloq
+            cs.registerOutParameter(4, Types.BIT);
+            cs.registerOutParameter(5, Types.BIT);
+            cs.registerOutParameter(6, Types.BIT);
+            cs.registerOutParameter(7, Types.BIT);
+            cs.registerOutParameter(8, Types.INTEGER);
+            cs.registerOutParameter(9, Types.VARCHAR);
+            cs.registerOutParameter(10, Types.VARCHAR);
+            cs.registerOutParameter(11, Types.INTEGER);
 
             cs.execute();
 
-            // Leer resultados
             resultado.setLoginExitoso(cs.getBoolean(4));
             resultado.setUsuarioBloqueado(cs.getBoolean(5));
             resultado.setUsuarioInactivo(cs.getBoolean(6));
@@ -74,70 +72,94 @@ public class UsuarioDAO extends DAO<Usuario> {
 
         } catch (SQLException e) {
             manejarError("Error al validar login", e);
+        } finally {
+            cerrarRecursos(cs, con);
         }
 
         return resultado;
     }
 
-    // Obtener información completa del usuario
     public Usuario obtenerPorId(int idUsuario) {
-        try (Connection con = getConnection();
-             CallableStatement cs = con.prepareCall("{CALL SP_ObtenerInfoUsuario(?)}")) {
+        Connection con = null;
+        CallableStatement cs = null;
+        ResultSet rs = null;
 
+        try {
+            con = getConnection();
+            cs = con.prepareCall("{CALL SP_ObtenerInfoUsuario(?)}");
             cs.setInt(1, idUsuario);
-            ResultSet rs = cs.executeQuery();
+            rs = cs.executeQuery();
 
             if (rs.next()) {
                 return parsear(rs);
             }
         } catch (SQLException e) {
             manejarError("Error al obtener usuario", e);
+        } finally {
+            cerrarRecursos(rs, cs, con);
         }
+
         return null;
     }
 
-    // Obtener usuario por nombre de usuario
     public Usuario obtenerPorNombreUsuario(String nombreUsuario) {
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(
-                     "SELECT * FROM Usuario WHERE nombreUsuario = ? AND estado = 'Activo'")) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
+        try {
+            con = getConnection();
+            ps = con.prepareStatement(
+                    "SELECT * FROM Usuario WHERE nombreUsuario = ? AND estado = 'Activo'");
             ps.setString(1, nombreUsuario);
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
 
             if (rs.next()) {
                 return parsear(rs);
             }
         } catch (SQLException e) {
             manejarError("Error al obtener usuario por nombre", e);
+        } finally {
+            cerrarRecursos(rs, ps, con);
         }
+
         return null;
     }
 
-    // Obtener usuario por email
     public Usuario obtenerPorEmail(String email) {
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(
-                     "SELECT * FROM Usuario WHERE email = ? AND estado = 'Activo'")) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
+        try {
+            con = getConnection();
+            ps = con.prepareStatement(
+                    "SELECT * FROM Usuario WHERE email = ? AND estado = 'Activo'");
             ps.setString(1, email);
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
 
             if (rs.next()) {
                 return parsear(rs);
             }
         } catch (SQLException e) {
             manejarError("Error al obtener usuario por email", e);
+        } finally {
+            cerrarRecursos(rs, ps, con);
         }
+
         return null;
     }
 
-    // Insertar nuevo usuario
     public boolean insertar(Usuario usuario) {
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(
-                     "INSERT INTO Usuario (nombreUsuario, contrasena, nombreCompleto, rol, telefono, email) " +
-                             "VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            con = getConnection();
+            ps = con.prepareStatement(
+                    "INSERT INTO Usuario (nombreUsuario, contrasena, nombreCompleto, rol, telefono, email) " +
+                            "VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 
             ps.setString(1, usuario.getNombreUsuario());
             ps.setString(2, usuario.getContrasena());
@@ -149,29 +171,46 @@ public class UsuarioDAO extends DAO<Usuario> {
             int filasAfectadas = ps.executeUpdate();
 
             if (filasAfectadas > 0) {
-                ResultSet rs = ps.getGeneratedKeys();
+                rs = ps.getGeneratedKeys();
                 if (rs.next()) {
                     usuario.setIdUsuario(rs.getInt(1));
                 }
+
+                con.commit();
+
                 mostrarMensajeExito("Usuario registrado exitosamente");
                 return true;
             }
         } catch (SQLException e) {
-            if (e.getMessage().contains("unique")) {
+            try {
+                if (con != null) {
+                    con.rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+
+            if (e.getMessage().contains("unique") || e.getMessage().contains("UNIQUE")) {
                 mostrarMensajeError("El nombre de usuario o email ya existe");
             } else {
                 manejarError("Error al insertar usuario", e);
             }
+        } finally {
+            cerrarRecursos(rs, ps, con);
         }
+
         return false;
     }
 
-    // Actualizar usuario
     public boolean actualizar(Usuario usuario) {
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(
-                     "UPDATE Usuario SET nombreCompleto = ?, telefono = ?, email = ?, " +
-                             "rol = ?, estado = ? WHERE idUsuario = ?")) {
+        Connection con = null;
+        PreparedStatement ps = null;
+
+        try {
+            con = getConnection();
+            ps = con.prepareStatement(
+                    "UPDATE Usuario SET nombreCompleto = ?, telefono = ?, email = ?, " +
+                            "rol = ?, estado = ? WHERE idUsuario = ?");
 
             ps.setString(1, usuario.getNombreCompleto());
             ps.setString(2, usuario.getTelefono());
@@ -181,27 +220,41 @@ public class UsuarioDAO extends DAO<Usuario> {
             ps.setInt(6, usuario.getIdUsuario());
 
             int filasAfectadas = ps.executeUpdate();
+
             if (filasAfectadas > 0) {
+                con.commit();
                 mostrarMensajeExito("Usuario actualizado exitosamente");
                 return true;
             }
         } catch (SQLException e) {
+            try {
+                if (con != null) {
+                    con.rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             manejarError("Error al actualizar usuario", e);
+        } finally {
+            cerrarRecursos(ps, con);
         }
+
         return false;
     }
 
-    // Cambiar contraseña usando SP
     public boolean cambiarContrasena(int idUsuario, String contrasenaActual, String contrasenaNueva) {
-        try (Connection con = getConnection();
-             CallableStatement cs = con.prepareCall(
-                     "{CALL SP_CambiarContrasena(?, ?, ?, ?, ?)}")) {
+        Connection con = null;
+        CallableStatement cs = null;
+
+        try {
+            con = getConnection();
+            cs = con.prepareCall("{CALL SP_CambiarContrasena(?, ?, ?, ?, ?)}");
 
             cs.setInt(1, idUsuario);
             cs.setString(2, contrasenaActual);
             cs.setString(3, contrasenaNueva);
-            cs.registerOutParameter(4, Types.BIT); // cambioExitoso
-            cs.registerOutParameter(5, Types.BIT); // contrasenaActualIncorrecta
+            cs.registerOutParameter(4, Types.BIT);
+            cs.registerOutParameter(5, Types.BIT);
 
             cs.execute();
 
@@ -209,27 +262,40 @@ public class UsuarioDAO extends DAO<Usuario> {
             boolean incorrecta = cs.getBoolean(5);
 
             if (exito) {
-                mostrarMensajeExito("Contraseña cambiada exitosamente");
+                con.commit();
+                mostrarMensajeExito("Contrasena cambiada exitosamente");
                 return true;
             } else if (incorrecta) {
-                mostrarMensajeError("Contraseña actual incorrecta");
+                mostrarMensajeError("Contrasena actual incorrecta");
             }
         } catch (SQLException e) {
-            manejarError("Error al cambiar contraseña", e);
+            try {
+                if (con != null) {
+                    con.rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            manejarError("Error al cambiar contrasena", e);
+        } finally {
+            cerrarRecursos(cs, con);
         }
+
         return false;
     }
 
-    // Desbloquear usuario
     public boolean desbloquearUsuario(int idUsuarioAdmin, int idUsuarioBloqueado) {
-        try (Connection con = getConnection();
-             CallableStatement cs = con.prepareCall(
-                     "{CALL SP_DesbloquearUsuario(?, ?, ?, ?)}")) {
+        Connection con = null;
+        CallableStatement cs = null;
+
+        try {
+            con = getConnection();
+            cs = con.prepareCall("{CALL SP_DesbloquearUsuario(?, ?, ?, ?)}");
 
             cs.setInt(1, idUsuarioAdmin);
             cs.setInt(2, idUsuarioBloqueado);
-            cs.registerOutParameter(3, Types.BIT); // desbloqueado
-            cs.registerOutParameter(4, Types.BIT); // sinPermisos
+            cs.registerOutParameter(3, Types.BIT);
+            cs.registerOutParameter(4, Types.BIT);
 
             cs.execute();
 
@@ -237,22 +303,35 @@ public class UsuarioDAO extends DAO<Usuario> {
             boolean sinPermisos = cs.getBoolean(4);
 
             if (desbloqueado) {
+                con.commit();
                 mostrarMensajeExito("Usuario desbloqueado exitosamente");
                 return true;
             } else if (sinPermisos) {
                 mostrarMensajeError("No tiene permisos para desbloquear usuarios");
             }
         } catch (SQLException e) {
+            try {
+                if (con != null) {
+                    con.rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             manejarError("Error al desbloquear usuario", e);
+        } finally {
+            cerrarRecursos(cs, con);
         }
+
         return false;
     }
 
-    // Verificar permisos
     public boolean verificarPermiso(int idUsuario, String permiso) {
-        try (Connection con = getConnection();
-             CallableStatement cs = con.prepareCall(
-                     "{CALL SP_VerificarPermiso(?, ?, ?)}")) {
+        Connection con = null;
+        CallableStatement cs = null;
+
+        try {
+            con = getConnection();
+            cs = con.prepareCall("{CALL SP_VerificarPermiso(?, ?, ?)}");
 
             cs.setInt(1, idUsuario);
             cs.setString(2, permiso);
@@ -263,59 +342,93 @@ public class UsuarioDAO extends DAO<Usuario> {
             return cs.getBoolean(3);
         } catch (SQLException e) {
             manejarError("Error al verificar permiso", e);
+        } finally {
+            cerrarRecursos(cs, con);
         }
+
         return false;
     }
 
-    // Listar todos los usuarios
     public List<Usuario> listarTodos() {
         List<Usuario> lista = new ArrayList<>();
-        try (Connection con = getConnection();
-             Statement st = con.createStatement();
-             ResultSet rs = st.executeQuery("SELECT * FROM Usuario ORDER BY fechaCreacion DESC")) {
+        Connection con = null;
+        Statement st = null;
+        ResultSet rs = null;
+
+        try {
+            con = getConnection();
+            st = con.createStatement();
+            rs = st.executeQuery("SELECT * FROM Usuario ORDER BY fechaCreacion DESC");
 
             while (rs.next()) {
                 lista.add(parsear(rs));
             }
         } catch (SQLException e) {
             manejarError("Error al listar usuarios", e);
+        } finally {
+            cerrarRecursos(rs, st, con);
         }
+
         return lista;
     }
 
-    // Verificar si existe usuario
     public boolean existeUsuario(String nombreUsuario) {
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(
-                     "SELECT COUNT(*) FROM Usuario WHERE nombreUsuario = ?")) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
+        try {
+            con = getConnection();
+            ps = con.prepareStatement(
+                    "SELECT COUNT(*) FROM Usuario WHERE nombreUsuario = ?");
             ps.setString(1, nombreUsuario);
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
 
             if (rs.next()) {
                 return rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
             manejarError("Error al verificar existencia de usuario", e);
+        } finally {
+            cerrarRecursos(rs, ps, con);
         }
+
         return false;
     }
 
-    // Verificar si existe email
     public boolean existeEmail(String email) {
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(
-                     "SELECT COUNT(*) FROM Usuario WHERE email = ?")) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
+        try {
+            con = getConnection();
+            ps = con.prepareStatement(
+                    "SELECT COUNT(*) FROM Usuario WHERE email = ?");
             ps.setString(1, email);
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
 
             if (rs.next()) {
                 return rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
             manejarError("Error al verificar existencia de email", e);
+        } finally {
+            cerrarRecursos(rs, ps, con);
         }
+
         return false;
+    }
+
+    private void cerrarRecursos(AutoCloseable... recursos) {
+        for (AutoCloseable recurso : recursos) {
+            if (recurso != null) {
+                try {
+                    recurso.close();
+                } catch (Exception e) {
+                    System.err.println("Error al cerrar recurso: " + e.getMessage());
+                }
+            }
+        }
     }
 }

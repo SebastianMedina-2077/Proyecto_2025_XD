@@ -3,10 +3,6 @@ package raven.forms;
 import raven.components.SimpleForm;
 import raven.menu.FormManager;
 
-/**
- *
- * @author Raven
- */
 public class InboxForm extends SimpleForm {
 
     public InboxForm() {

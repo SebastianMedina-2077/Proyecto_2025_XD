@@ -21,10 +21,6 @@ import raven.chart.pie.PieChart;
 import raven.components.SimpleForm;
 import raven.utils.DateCalculator;
 
-/**
- *
- * @author
- */
 public class DashboardForm extends SimpleForm {
 
     public DashboardForm() {

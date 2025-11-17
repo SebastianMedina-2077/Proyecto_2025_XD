@@ -11,10 +11,6 @@ import net.miginfocom.swing.MigLayout;
 import raven.menu.FormManager;
 import raven.model.ModelUser;
 
-/**
- *
- *
- */
 public class Login extends JPanel {
 
     public Login() {

@@ -17,10 +17,6 @@ import raven.swing.slider.SimpleTransition;
 import raven.utils.UndoRedo;
 import raven.login_register.component.ButtonLink;
 
-/**
- *
- * @author Raven
- */
 public class FormManager {
 
     private static FormManager instance;

@@ -1,5 +1,6 @@
 package Facade;
 
+import DB_Conection.DatabaseConnection;
 import Models.Usuario;
 import Models.ResultadoLogin;
 import Repository.UsuarioDAO;
@@ -18,13 +19,10 @@ public class AuthenticationFacade {
         this.encryption = new PasswordEncryption();
     }
 
-    // Login simplificado
     public ResultadoLogin login(String nombreUsuario, String contrasena, String ipAcceso) {
         try {
-            // Encriptar contraseña para comparar
             String contrasenaEncriptada = encryption.encriptar(contrasena);
 
-            // Validar login usando el DAO
             ResultadoLogin resultado = usuarioDAO.validarLogin(nombreUsuario,
                     contrasenaEncriptada, ipAcceso);
 
@@ -37,87 +35,94 @@ public class AuthenticationFacade {
         }
     }
 
-    // Registro simplificado
     public boolean registrarUsuario(String nombreUsuario, String contrasena,
                                     String nombreCompleto, String rol,
                                     String telefono, String email) {
         try {
-            // Validar que no exista el usuario
             if (usuarioDAO.existeUsuario(nombreUsuario)) {
                 usuarioDAO.mostrarMensajeError("El nombre de usuario ya existe");
                 return false;
             }
 
             if (usuarioDAO.existeEmail(email)) {
-                usuarioDAO.mostrarMensajeError("El email ya está registrado");
+                usuarioDAO.mostrarMensajeError("El email ya esta registrado");
                 return false;
             }
 
-            // Encriptar contraseña
             String contrasenaEncriptada = encryption.encriptar(contrasena);
 
-            // Crear usuario
             Usuario usuario = new Usuario(nombreUsuario, contrasenaEncriptada,
                     nombreCompleto, rol, telefono, email);
 
-            // Insertar en base de datos
-            return usuarioDAO.insertar(usuario);
+            boolean insertado = usuarioDAO.insertar(usuario);
+
+            if (insertado) {
+                refrescarConexion();
+            }
+
+            return insertado;
 
         } catch (NoSuchAlgorithmException e) {
-            usuarioDAO.mostrarMensajeError("Error al procesar contraseña");
+            usuarioDAO.mostrarMensajeError("Error al procesar contrasena");
             return false;
         }
     }
 
-    // Recuperar contraseña
     public boolean iniciarRecuperacion(String email) {
         Usuario usuario = usuarioDAO.obtenerPorEmail(email);
 
         if (usuario == null) {
-            usuarioDAO.mostrarMensajeError("No existe ningún usuario con ese email");
+            usuarioDAO.mostrarMensajeError("No existe ningun usuario con ese email");
             return false;
         }
 
         return emailService.enviarEmailRecuperacion(email, usuario.getNombreUsuario());
     }
 
-    // Validar token de recuperación
     public boolean validarTokenRecuperacion(String token, String nombreUsuario) {
         return emailService.validarToken(token, nombreUsuario);
     }
 
-    // Restablecer contraseña con token
     public boolean restablecerContrasena(String token, String nombreUsuario, String nuevaContrasena) {
         try {
-            // Validar y consumir token
             if (!emailService.consumirToken(token)) {
-                usuarioDAO.mostrarMensajeError("Token inválido o expirado");
+                usuarioDAO.mostrarMensajeError("Token invalido o expirado");
                 return false;
             }
 
-            // Obtener usuario
             Usuario usuario = usuarioDAO.obtenerPorNombreUsuario(nombreUsuario);
             if (usuario == null) {
                 usuarioDAO.mostrarMensajeError("Usuario no encontrado");
                 return false;
             }
 
-            // Encriptar nueva contraseña
             String contrasenaEncriptada = encryption.encriptar(nuevaContrasena);
 
-            // Actualizar contraseña directamente en BD
-            return usuarioDAO.cambiarContrasena(usuario.getIdUsuario(),
+            boolean actualizado = usuarioDAO.cambiarContrasena(usuario.getIdUsuario(),
                     usuario.getContrasena(),
                     contrasenaEncriptada);
 
+            if (actualizado) {
+                refrescarConexion();
+            }
+
+            return actualizado;
+
         } catch (NoSuchAlgorithmException e) {
-            usuarioDAO.mostrarMensajeError("Error al procesar contraseña");
+            usuarioDAO.mostrarMensajeError("Error al procesar contrasena");
             return false;
         }
     }
 
-    // Verificar permisos
     public boolean tienePermiso(int idUsuario, String permiso) {
         return usuarioDAO.verificarPermiso(idUsuario, permiso);
+    }
+
+    private void refrescarConexion() {
+        try {
+            DatabaseConnection.getInstance().getConnection();
+        } catch (Exception e) {
+            System.err.println("Advertencia al refrescar conexion: " + e.getMessage());
+        }
     }
 }
